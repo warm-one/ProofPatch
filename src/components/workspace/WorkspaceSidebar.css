@@ -58,6 +58,28 @@
   font-size: 0.5625rem;
 }
 
+.workspace-sidebar__case-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line-subtle);
+  color: var(--text-secondary) !important;
+  font-size: 0.5625rem !important;
+}
+
+.workspace-sidebar__case-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--risk);
+}
+
+.workspace-sidebar__case-dot.is-clear {
+  background: var(--accent);
+}
+
 .workspace-sidebar__nav {
   display: grid;
   gap: 3px;

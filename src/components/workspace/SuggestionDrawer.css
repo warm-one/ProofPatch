@@ -1,0 +1,257 @@
+.suggestion-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.suggestion-layer__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 62%);
+  cursor: default;
+  animation: backdrop-in 200ms ease;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.suggestion-drawer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(90vw, 470px);
+  height: 100%;
+  border-left: 1px solid var(--line-strong);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-dialog);
+  animation: drawer-in 260ms var(--ease-out);
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.suggestion-drawer__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 22px 22px 18px;
+  border-bottom: 1px solid var(--line-subtle);
+}
+
+.suggestion-drawer__header .mono {
+  color: var(--text-muted);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+}
+
+.suggestion-drawer__header h2 {
+  margin-top: 6px;
+  color: var(--text-primary);
+  font-size: 1.35rem;
+  font-weight: 560;
+  letter-spacing: -0.035em;
+}
+
+.suggestion-drawer__intro {
+  display: flex;
+  gap: 10px;
+  margin: 18px 22px 0;
+  padding: 13px;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+  color: var(--text-muted);
+}
+
+.suggestion-drawer__intro svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--risk);
+}
+
+.suggestion-drawer__intro p {
+  font-size: 0.6875rem;
+  line-height: 1.7;
+}
+
+.suggestion-drawer__list {
+  display: grid;
+  gap: 12px;
+  padding: 18px 22px 24px;
+  overflow-y: auto;
+}
+
+.suggestion-card {
+  padding: 16px;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+}
+
+.suggestion-card.is-adopted {
+  border-color: var(--accent-line);
+  background:
+    linear-gradient(135deg, rgb(116 217 174 / 4%), transparent 38%),
+    var(--bg-raised);
+}
+
+.suggestion-card > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.4688rem;
+  letter-spacing: 0.05em;
+}
+
+.suggestion-card__source {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 5px;
+  border: 1px dashed #5a4528;
+  border-radius: 3px;
+  color: var(--risk);
+  font-size: 0.5rem;
+}
+
+.suggestion-card__adopted {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 0.5rem;
+}
+
+.suggestion-card h3 {
+  margin-top: 14px;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 560;
+  letter-spacing: -0.025em;
+  line-height: 1.4;
+}
+
+.suggestion-card > p {
+  margin-top: 7px;
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  line-height: 1.68;
+}
+
+.suggestion-card__criterion {
+  margin-top: 14px;
+  padding: 10px;
+  border-left: 2px solid var(--line-strong);
+  background: var(--bg-inset);
+}
+
+.suggestion-card__criterion .mono {
+  color: var(--text-muted);
+  font-size: 0.4688rem;
+  letter-spacing: 0.05em;
+}
+
+.suggestion-card__criterion p {
+  margin-top: 5px;
+  color: var(--text-secondary);
+  font-size: 0.625rem;
+  line-height: 1.65;
+}
+
+.suggestion-card footer {
+  margin-top: 15px;
+}
+
+.suggestion-card footer .pp-button {
+  width: 100%;
+  min-height: 38px;
+  font-size: 0.6875rem;
+}
+
+.suggestion-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-size: 0.6875rem;
+}
+
+.suggestion-card__link:hover {
+  color: var(--accent-strong);
+}
+
+.suggestion-drawer__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: auto;
+  padding: 14px 22px 20px;
+  border-top: 1px solid var(--line-subtle);
+}
+
+.suggestion-drawer__footer > div {
+  display: flex;
+  gap: 8px;
+  max-width: 64%;
+  color: var(--text-muted);
+}
+
+.suggestion-drawer__footer svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.suggestion-drawer__footer p {
+  font-size: 0.5625rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .suggestion-drawer {
+    width: 100%;
+    border-left: 0;
+  }
+
+  .suggestion-drawer__header {
+    padding: 18px 16px 14px;
+  }
+
+  .suggestion-drawer__intro {
+    margin: 14px 16px 0;
+    padding: 13px;
+  }
+
+  .suggestion-drawer__list {
+    padding: 14px 16px 20px;
+  }
+
+  .suggestion-drawer__footer {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 12px 16px 18px;
+  }
+
+  .suggestion-drawer__footer > div {
+    max-width: 100%;
+  }
+}

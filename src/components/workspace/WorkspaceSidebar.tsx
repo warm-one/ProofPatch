@@ -7,6 +7,12 @@ import {
   TerminalSquare,
 } from "lucide-react";
 import { Link, NavLink } from "react-router-dom";
+import {
+  getActiveSnapshot,
+  getStatusCounts,
+  getUnresolvedCount,
+} from "../../state/selectors";
+import { useWorkspace } from "../../state/WorkspaceContext";
 import { BrandMark } from "../ui/BrandMark";
 import { DemoLabel } from "../ui/DemoLabel";
 import "./WorkspaceSidebar.css";
@@ -49,6 +55,12 @@ interface WorkspaceSidebarProps {
 }
 
 export function WorkspaceSidebar({ onNavigate }: WorkspaceSidebarProps) {
+  const { state } = useWorkspace();
+  const snapshot = getActiveSnapshot(state);
+  const counts = getStatusCounts(state.acceptanceItems);
+  const unresolved = getUnresolvedCount(state.acceptanceItems);
+  const passedWithoutUnresolved = counts.passed > 0 && unresolved === 0;
+
   return (
     <div className="workspace-sidebar">
       <div className="workspace-sidebar__top">
@@ -65,8 +77,17 @@ export function WorkspaceSidebar({ onNavigate }: WorkspaceSidebarProps) {
       <div className="workspace-sidebar__case">
         <span className="workspace-sidebar__case-label mono">CURRENT CASE</span>
         <strong>storefront-web</strong>
-        <span>暗色模式交付验收</span>
-        <span className="mono">REQ-012 · 5 项</span>
+        <span>{state.requirement.title}</span>
+        <span className="mono">
+          {state.requirement.id} · {snapshot.displayName} ·{" "}
+          {state.acceptanceItems.length} 项
+        </span>
+        <span className="workspace-sidebar__case-status">
+          <span
+            className={`workspace-sidebar__case-dot${passedWithoutUnresolved ? " is-clear" : ""}`}
+          />
+          {passedWithoutUnresolved ? "全部已确认" : `${unresolved} 项未决`}
+        </span>
       </div>
 
       <nav aria-label="工作台导航" className="workspace-sidebar__nav">

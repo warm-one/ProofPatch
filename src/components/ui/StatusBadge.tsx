@@ -1,7 +1,8 @@
 import { CircleCheck, CircleDashed, TriangleAlert } from "lucide-react";
+import type { AcceptanceStatus } from "../../types/workspace";
 import "./StatusBadge.css";
 
-export type AcceptanceStatus = "passed" | "failed" | "unverified";
+export type { AcceptanceStatus };
 
 const statusMeta: Record<
   AcceptanceStatus,

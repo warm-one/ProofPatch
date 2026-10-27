@@ -1,13 +1,19 @@
-import { Menu, X } from "lucide-react";
+import { Menu, RotateCcw, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { getActiveSnapshot } from "../../state/selectors";
+import { useWorkspace } from "../../state/WorkspaceContext";
 import { DemoLabel } from "../ui/DemoLabel";
+import { ToastRegion } from "./ToastRegion";
 import { WorkspaceSidebar } from "./WorkspaceSidebar";
 import "./WorkspaceLayout.css";
 
 export function WorkspaceLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { state, isRunning, resetDemo } = useWorkspace();
+  const activeSnapshot = getActiveSnapshot(state);
+  const runningRun = state.runs.find((run) => run.status === "running");
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -70,10 +76,27 @@ export function WorkspaceLayout() {
           </div>
 
           <div className="workspace-topbar__meta">
+            {runningRun && (
+              <span className="workspace-topbar__running mono">
+                <span aria-hidden="true" />
+                {runningRun.id} / 回放中
+              </span>
+            )}
             <span className="workspace-topbar__snapshot mono">
-              SNAPSHOT / BEFORE-FIX
+              SNAPSHOT / {activeSnapshot.label}
             </span>
             <DemoLabel tone="line" />
+            <button
+              aria-label="重置演示数据"
+              className="workspace-topbar__reset"
+              disabled={isRunning}
+              onClick={resetDemo}
+              title="重置演示"
+              type="button"
+            >
+              <RotateCcw aria-hidden="true" size={14} />
+              <span>重置</span>
+            </button>
             <Link className="workspace-topbar__exit" to="/">
               返回官网
             </Link>
@@ -83,6 +106,7 @@ export function WorkspaceLayout() {
         <main className="workspace-content" id="workspace-content">
           <Outlet />
         </main>
+        <ToastRegion />
       </div>
     </div>
   );

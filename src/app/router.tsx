@@ -2,8 +2,11 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { MarketingLayout } from "../components/marketing/MarketingLayout";
 import { WorkspaceLayout } from "../components/workspace/WorkspaceLayout";
 import HomePage from "../pages/HomePage";
+import AcceptancePage from "../pages/AcceptancePage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { PlaceholderPage } from "../pages/PlaceholderPage";
+import RequirementsPage from "../pages/RequirementsPage";
+import { WorkspaceProvider } from "../state/WorkspaceContext";
 
 export function AppRoutes() {
   return (
@@ -13,30 +16,17 @@ export function AppRoutes() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
 
-      <Route path="workspace" element={<WorkspaceLayout />}>
+      <Route
+        path="workspace"
+        element={
+          <WorkspaceProvider>
+            <WorkspaceLayout />
+          </WorkspaceProvider>
+        }
+      >
         <Route index element={<Navigate replace to="acceptance" />} />
-        <Route
-          path="requirements"
-          element={
-            <PlaceholderPage
-              description="读需求、看变更，并把每一条验收范围落到具体代码。"
-              index="01"
-              label="Requirements & diff"
-              title="需求与变更"
-            />
-          }
-        />
-        <Route
-          path="acceptance"
-          element={
-            <PlaceholderPage
-              description="将需求拆成可核验的条件，逐项查看证据与人工确认状态。"
-              index="02"
-              label="Acceptance matrix"
-              title="验收矩阵"
-            />
-          }
-        />
+        <Route path="requirements" element={<RequirementsPage />} />
+        <Route path="acceptance" element={<AcceptancePage />} />
         <Route
           path="runs"
           element={
