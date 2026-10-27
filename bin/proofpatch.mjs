@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { createInterface } from "node:readline/promises";
@@ -222,7 +222,7 @@ async function commandCheck(flags) {
   const repoPath = typeof flags.repo === "string" ? flags.repo : process.cwd();
   const baseRef = typeof flags.base === "string" ? flags.base : "HEAD";
   const outPath =
-    typeof flags.out === "string" ? flags.out : "proofpatch-receipt.json";
+    typeof flags.out === "string" ? flags.out : ".proofpatch/receipt.json";
 
   const repeats = flags.repeats === undefined ? 3 : Number(flags.repeats);
   if (!Number.isInteger(repeats) || repeats < 1 || repeats > 9) {
@@ -303,6 +303,8 @@ async function commandCheck(flags) {
 
   const { receipt, validation, exitCode } = result;
   const absoluteOut = path.resolve(outPath);
+  // 回执写进独立目录，避免在用户项目根目录堆文件。
+  await mkdir(path.dirname(absoluteOut), { recursive: true });
   await writeFile(absoluteOut, `${JSON.stringify(receipt, null, 2)}\n`, "utf8");
 
   if (quiet) {
@@ -344,7 +346,8 @@ async function commandVerify(flags) {
   const patchPath = requireFlag(flags, "patch");
   const oraclePath = requireFlag(flags, "oracle");
   const baseRef = typeof flags.base === "string" ? flags.base : "HEAD";
-  const outPath = typeof flags.out === "string" ? flags.out : "proofpatch-receipt.json";
+  const outPath =
+    typeof flags.out === "string" ? flags.out : ".proofpatch/receipt.json";
 
   const repeats = flags.repeats === undefined ? 3 : Number(flags.repeats);
   if (!Number.isInteger(repeats) || repeats < 1 || repeats > 9) {
@@ -367,6 +370,7 @@ async function commandVerify(flags) {
   });
 
   const absoluteOut = path.resolve(outPath);
+  await mkdir(path.dirname(absoluteOut), { recursive: true });
   await writeFile(absoluteOut, `${JSON.stringify(receipt, null, 2)}\n`, "utf8");
 
   if (flags.json) {

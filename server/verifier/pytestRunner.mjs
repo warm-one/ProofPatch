@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import path from "node:path";
 import { UserFacingError } from "../errors.mjs";
 import { digestOfText } from "./digest.mjs";
 
@@ -115,6 +116,17 @@ export async function resolvePython(preferred) {
   }
   candidates.push("python3", "python", "py");
 
+  // Conda 是 Windows 上最常见的"自带 pytest 的解释器"，但它的 python.exe
+  // 通常不在 PATH 上。这些是默认安装位置，不是某台机器的特例。
+  const home = process.env.USERPROFILE || process.env.HOME;
+  if (home) {
+    candidates.push(path.join(home, "anaconda3", "python.exe"));
+    candidates.push(path.join(home, "miniconda3", "python.exe"));
+  }
+  if (process.platform === "win32") {
+    candidates.push("C:/ProgramData/anaconda3/python.exe");
+  }
+
   const attempts = [];
 
   for (const candidate of candidates) {
@@ -149,10 +161,14 @@ export async function resolvePython(preferred) {
   throw new UserFacingError(
     [
       "找不到可用的 Python + pytest 环境。",
-      "请用 --python 指定解释器，或设置环境变量 PROOFPATCH_PYTHON。",
+      "",
+      "三个办法，任选其一：",
+      "  1) 给现有解释器装 pytest：python -m pip install pytest",
+      "  2) 直接指定解释器：proofpatch check --python <python.exe 路径>",
+      "  3) 设一次环境变量 PROOFPATCH_PYTHON，之后不用再传",
       "",
       "已尝试：",
-      ...attempts.map((line) => `- ${line}`),
+      ...attempts.map((line) => `  - ${line}`),
     ].join("\n"),
     400,
     "PYTHON_UNAVAILABLE",

@@ -1,0 +1,86 @@
+name: ProofPatch
+
+# 在 PR 上证明"这个补丁确实修好了它声称修好的失败"。
+#
+# 一个必须理解的前提：
+# 自动发现契约依赖"基线本来就有一个失败的测试"。
+# 但 CI 的基线分支通常是全绿的，所以这里不能用自动推导，
+# 必须显式指定目标测试（或改用一份冻结的 oracle.json）。
+#
+# 需要的仓库变量：
+#   PROOFPATCH_TARGET_TEST = tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安装 pytest
+        run: python -m pip install --upgrade pytest
+
+      - name: 确认已配置目标测试
+        if: vars.PROOFPATCH_TARGET_TEST == ''
+        run: |
+          echo "::error::未配置 PROOFPATCH_TARGET_TEST。"
+          echo "CI 里基线通常是全绿的，无法自动推导契约。"
+          echo "请在仓库 Settings → Secrets and variables → Actions → Variables 里设置："
+          echo "  PROOFPATCH_TARGET_TEST = tests/test_x.py::test_y"
+          exit 1
+
+      - name: 取出基线并生成候选补丁
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          git diff --binary "origin/${{ github.base_ref }}...HEAD" > candidate.patch
+          echo "候选补丁大小：$(wc -c < candidate.patch) 字节"
+
+      - name: 证明修复
+        id: prove
+        continue-on-error: true
+        env:
+          PROOFPATCH_PYTHON: python
+        run: |
+          node bin/proofpatch.mjs check \
+            --base "origin/${{ github.base_ref }}" \
+            --patch candidate.patch \
+            --test "${{ vars.PROOFPATCH_TARGET_TEST }}" \
+            --repeats 3 \
+            --yes \
+            --out proofpatch-receipt.json \
+            --json > receipt-stdout.json
+
+      - name: 上传证据回执
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proofpatch-receipt
+          path: |
+            proofpatch-receipt.json
+            candidate.patch
+          if-no-files-found: warn
+
+      - name: 结论不是 PROVEN 就阻止合并
+        if: steps.prove.outcome != 'success'
+        run: |
+          echo "::error::ProofPatch 未给出 PROVEN 结论，本次合并被阻止。"
+          echo "请查看上传的 proofpatch-receipt.json 中的 reason.code 与 unproven 字段。"
+          exit 1
