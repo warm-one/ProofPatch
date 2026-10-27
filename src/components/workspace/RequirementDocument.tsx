@@ -16,6 +16,9 @@ export function RequirementDocument({
   const { state } = useWorkspace();
   const requirement = state.requirement;
   const unresolved = getUnresolvedCount(state.acceptanceItems);
+  const pendingSuggestions = state.suggestions.filter(
+    (suggestion) => suggestion.state === "pending",
+  ).length;
 
   return (
     <article className="requirement-document panel">
@@ -69,8 +72,16 @@ export function RequirementDocument({
         <aside className="requirement-document__suggestion">
           <Sparkles aria-hidden="true" size={16} strokeWidth={1.5} />
           <div>
-            <strong>AI 发现了 1 条尚未采纳的边界建议</strong>
-            <p>建议只有经人采纳并补充证据后，才会进入验收矩阵。</p>
+            <strong>
+              {pendingSuggestions > 0
+                ? `AI 发现了 ${pendingSuggestions} 条尚未采纳的边界建议`
+                : "AI 建议已全部处理"}
+            </strong>
+            <p>
+              {pendingSuggestions > 0
+                ? "建议只有经人采纳并补充证据后，才会进入验收矩阵。"
+                : "已采纳的建议仍需运行检查与人工确认，不能直接进入交付报告。"}
+            </p>
           </div>
           <button onClick={onOpenSuggestions} type="button">
             查看建议

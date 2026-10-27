@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" fill="none">
+  <title>暗色主题切换后的主页截图</title>
+  <desc>模拟浏览器截图：NORDHAUS 主页处于暗色主题，顶部主题切换控件显示月亮图标。</desc>
+  <defs>
+    <linearGradient id="heroBg" x1="838" y1="156" x2="1360" y2="660" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DCD1C1"/>
+      <stop offset="0.65" stop-color="#C9B9A4"/>
+      <stop offset="1" stop-color="#B7A68F"/>
+    </linearGradient>
+    <linearGradient id="vase" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#F1E8D9"/>
+      <stop offset="1" stop-color="#D9CBB7"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1440" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B0D0C"/>
+      <stop offset="1" stop-color="#080A09"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <style>
+      .sans { font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .mono { font-family: "JetBrains Mono", Consolas, monospace; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="900" fill="url(#screen)"/>
+
+  <!-- Browser chrome -->
+  <rect width="1440" height="44" fill="#111412"/>
+  <line x1="0" y1="43.5" x2="1440" y2="43.5" stroke="#29302B"/>
+  <circle cx="23" cy="22" r="5" fill="#3B453E"/>
+  <circle cx="41" cy="22" r="5" fill="#3B453E"/>
+  <circle cx="59" cy="22" r="5" fill="#3B453E"/>
+  <rect x="400" y="8" width="640" height="28" rx="6" fill="#0B0D0C" stroke="#29302B"/>
+  <path d="M423 23.5V19.5C423 18.1193 424.119 17 425.5 17H428.5C429.881 17 431 18.1193 431 19.5V23.5" stroke="#5E6962" stroke-width="1.2"/>
+  <rect x="422" y="21" width="10" height="7" rx="1.5" stroke="#5E6962" stroke-width="1.2"/>
+  <text x="446" y="26" class="mono" font-size="11" fill="#8B958E">nordhaus.demo / collection-04</text>
+  <path d="M1360 17H1381V27H1360Z" stroke="#3B453E" stroke-width="1.2"/>
+  <path d="M1401 17H1422V27H1401Z" stroke="#3B453E" stroke-width="1.2"/>
+
+  <!-- Navigation -->
+  <line x1="0" y1="109" x2="1440" y2="109" stroke="#1E2420"/>
+  <path d="M80 70H91V81H80Z" stroke="#74D9AE" stroke-width="1.5"/>
+  <path d="M86 76H97V87H86Z" stroke="#F0F4F1" stroke-width="1.5"/>
+  <text x="109" y="84" class="sans" font-size="17" font-weight="600" fill="#F0F4F1" letter-spacing="-0.3">NORDHAUS</text>
+
+  <text x="490" y="82" class="sans" font-size="11" fill="#F0F4F1">家具</text>
+  <text x="562" y="82" class="sans" font-size="11" fill="#A7B0AA">灯具</text>
+  <text x="634" y="82" class="sans" font-size="11" fill="#A7B0AA">器物</text>
+  <text x="706" y="82" class="sans" font-size="11" fill="#A7B0AA">日志</text>
+
+  <circle cx="1187" cy="77" r="16" stroke="#29302B"/>
+  <circle cx="1187" cy="74" r="4.5" stroke="#A7B0AA" stroke-width="1.2"/>
+  <path d="M1192 82L1197 87" stroke="#A7B0AA" stroke-width="1.2"/>
+  <text x="1216" y="81" class="sans" font-size="11" fill="#A7B0AA">搜索</text>
+  <text x="1279" y="81" class="sans" font-size="11" fill="#A7B0AA">购物袋 (0)</text>
+  <rect x="1348" y="61" width="32" height="32" rx="16" fill="#10261D" stroke="#2F644E"/>
+  <path d="M1367.6 70.2C1364.1 71 1361.8 74.1 1362.1 77.7C1362.4 81.4 1365.7 84.2 1369.4 83.9C1371.8 83.7 1373.8 82.4 1374.9 80.5C1371.2 81 1367.9 78.2 1367.7 74.5C1367.6 73 1368 71.5 1368.8 70.3C1368.4 70.2 1368 70.2 1367.6 70.2Z" stroke="#74D9AE" stroke-width="1.2" stroke-linejoin="round"/>
+
+  <!-- Hero copy -->
+  <text x="80" y="185" class="mono" font-size="9" fill="#838D86" letter-spacing="1.4">COLLECTION 04 / AUTUMN 2026</text>
+  <text x="80" y="274" class="sans" font-size="76" font-weight="500" fill="#F0F4F1" letter-spacing="-4.5">Objects for</text>
+  <text x="80" y="348" class="sans" font-size="76" font-weight="500" fill="#F0F4F1" letter-spacing="-4.5">quieter rooms.</text>
+  <text x="80" y="401" class="sans" font-size="14" fill="#A7B0AA">A considered collection of furniture and small objects,</text>
+  <text x="80" y="423" class="sans" font-size="14" fill="#A7B0AA">made for the rhythm of everyday living.</text>
+
+  <rect x="80" y="468" width="180" height="46" rx="3" fill="#B7F4D7"/>
+  <text x="102" y="496" class="sans" font-size="11" font-weight="600" fill="#0B0D0C">探索本季系列</text>
+  <path d="M229 491H241M237 487L241 491L237 495" stroke="#0B0D0C" stroke-width="1.3"/>
+  <text x="80" y="570" class="mono" font-size="8" fill="#66716A" letter-spacing="0.7">DESIGNED IN COPENHAGEN · MADE TO LAST</text>
+
+  <line x1="80" y1="611" x2="370" y2="611" stroke="#29302B"/>
+  <text x="80" y="641" class="mono" font-size="8" fill="#838D86" letter-spacing="1">FEATURED</text>
+  <text x="174" y="641" class="sans" font-size="10" fill="#A7B0AA">Sculpted seating, soft light, honest materials.</text>
+
+  <!-- Hero art -->
+  <g filter="url(#softShadow)">
+    <rect x="816" y="158" width="544" height="493" rx="2" fill="url(#heroBg)"/>
+    <path d="M816 158H1360V651H816V158Z" stroke="#E5DDD2" stroke-opacity="0.35"/>
+    <path d="M890 466C890 373 958 318 1046 318C1134 318 1194 376 1194 466H890Z" fill="#CABCAA" fill-opacity="0.58"/>
+    <ellipse cx="1038" cy="582" rx="157" ry="24" fill="#7E6E5A" fill-opacity="0.2"/>
+    <path d="M924 502H1136L1115 566H945L924 502Z" fill="#746653"/>
+    <path d="M944 566H1116L1107 603H954L944 566Z" fill="#6C5E4C"/>
+    <path d="M962 603H975L968 650H955L962 603Z" fill="#574B3C"/>
+    <path d="M1078 603H1091L1098 650H1085L1078 603Z" fill="#574B3C"/>
+    <rect x="942" y="512" width="176" height="6" rx="3" fill="#948471" fill-opacity="0.7"/>
+    <path d="M1190 453V327" stroke="#574B3C" stroke-width="3"/>
+    <path d="M1150 453H1230L1218 486H1162L1150 453Z" fill="#887862"/>
+    <circle cx="1218" cy="324" r="28" fill="#E7D9C3"/>
+    <circle cx="1218" cy="324" r="28" stroke="#D2C2AA" stroke-width="1"/>
+    <path d="M1190 356L1218 327L1245 356" stroke="#B9A990" stroke-width="1.2"/>
+    <path d="M887 547H928L922 593H893L887 547Z" fill="url(#vase)"/>
+    <path d="M900 547C900 526 906 510 919 496" stroke="#4F574E" stroke-width="1.4"/>
+    <path d="M901 518C889 507 883 499 882 490C896 493 904 502 906 514" fill="#707965"/>
+    <path d="M912 506C918 490 926 480 937 474C934 489 928 500 917 510" fill="#7D8672"/>
+    <path d="M920 496C925 484 932 477 943 473" stroke="#4F574E" stroke-width="1"/>
+    <rect x="1240" y="558" width="57" height="3" rx="1.5" fill="#8F806C"/>
+    <text x="838" y="626" class="mono" font-size="8" fill="#4F554F" letter-spacing="1">NORDHAUS OBJECTS / 04—1</text>
+  </g>
+
+  <!-- Product strip -->
+  <line x1="80" y1="691" x2="1360" y2="691" stroke="#29302B"/>
+  <text x="80" y="725" class="mono" font-size="8" fill="#66716A" letter-spacing="1">01</text>
+  <text x="117" y="725" class="sans" font-size="11" fill="#F0F4F1">Arc Lounge Chair</text>
+  <text x="117" y="742" class="sans" font-size="9" fill="#838D86">Oak / woven wool</text>
+  <text x="438" y="725" class="mono" font-size="8" fill="#66716A" letter-spacing="1">02</text>
+  <text x="475" y="725" class="sans" font-size="11" fill="#F0F4F1">Dune Table Lamp</text>
+  <text x="475" y="742" class="sans" font-size="9" fill="#838D86">Brushed steel / linen</text>
+  <text x="796" y="725" class="mono" font-size="8" fill="#66716A" letter-spacing="1">03</text>
+  <text x="833" y="725" class="sans" font-size="11" fill="#F0F4F1">Still Vase</text>
+  <text x="833" y="742" class="sans" font-size="9" fill="#838D86">Hand-thrown stoneware</text>
+  <text x="1247" y="725" class="mono" font-size="8" fill="#74D9AE" letter-spacing="1">VIEW ALL →</text>
+
+  <line x1="80" y1="789" x2="1360" y2="789" stroke="#1E2420"/>
+  <text x="80" y="816" class="mono" font-size="8" fill="#66716A">© 2026 NORDHAUS</text>
+  <text x="1160" y="816" class="mono" font-size="8" fill="#66716A">DANISH DESIGN / GLOBAL DELIVERY</text>
+
+  <!-- Evidence watermark -->
+  <rect x="34" y="838" width="254" height="28" rx="4" fill="#0B0D0C" stroke="#29302B"/>
+  <circle cx="50" cy="852" r="3.5" fill="#74D9AE"/>
+  <text x="61" y="856" class="mono" font-size="8" fill="#838D86">DEMO CAPTURE · HOME · DARK</text>
+  <rect x="1188" y="838" width="218" height="28" rx="4" fill="#10261D" stroke="#285440"/>
+  <text x="1204" y="856" class="mono" font-size="8" fill="#74D9AE">THEME=PERSISTED · PASS</text>
+</svg>

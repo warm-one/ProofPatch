@@ -245,7 +245,7 @@
 .acceptance-matrix__title-line strong {
   overflow: hidden;
   color: var(--text-secondary);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 510;
   letter-spacing: -0.01em;
   text-overflow: ellipsis;
@@ -342,7 +342,7 @@
   letter-spacing: 0.04em;
 }
 
-@media (max-width: 1380px) {
+@media (max-width: 1220px) {
   .acceptance-page__layout {
     grid-template-columns: minmax(0, 1fr);
   }

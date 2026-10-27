@@ -60,7 +60,7 @@
   padding-left: 10px;
   border-left: 1px solid var(--line-strong);
   color: var(--text-secondary);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   line-height: 1.72;
 }
 
@@ -199,7 +199,7 @@
 
 .acceptance-detail__evidence-copy strong {
   color: var(--text-secondary);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 510;
   line-height: 1.45;
 }
@@ -532,7 +532,7 @@
   color: var(--text-primary);
 }
 
-@media (max-width: 1380px) {
+@media (max-width: 1220px) {
   .acceptance-detail {
     position: static;
     max-height: none;

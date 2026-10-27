@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" fill="none">
+  <title>系统主题行为检查截图</title>
+  <desc>模拟浏览器截图：主题设置为跟随系统，系统切换为深色后页面同步更新。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1440" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C0F0D"/>
+      <stop offset="1" stop-color="#090B0A"/>
+    </linearGradient>
+    <linearGradient id="previewDark" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#171B18"/>
+      <stop offset="1" stop-color="#0C0F0D"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <style>
+      .sans { font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .mono { font-family: "JetBrains Mono", Consolas, monospace; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="900" fill="url(#bg)"/>
+  <rect y="48" width="1440" height="852" fill="#0B0D0C"/>
+
+  <!-- Browser chrome -->
+  <rect width="1440" height="48" fill="#111412"/>
+  <line x1="0" y1="47.5" x2="1440" y2="47.5" stroke="#29302B"/>
+  <circle cx="23" cy="24" r="5" fill="#3B453E"/>
+  <circle cx="41" cy="24" r="5" fill="#3B453E"/>
+  <circle cx="59" cy="24" r="5" fill="#3B453E"/>
+  <rect x="400" y="10" width="640" height="28" rx="6" fill="#0B0D0C" stroke="#29302B"/>
+  <path d="M423 25.5V21.5C423 20.1193 424.119 19 425.5 19H428.5C429.881 19 431 20.1193 431 21.5V25.5" stroke="#5E6962" stroke-width="1.2"/>
+  <rect x="422" y="23" width="10" height="7" rx="1.5" stroke="#5E6962" stroke-width="1.2"/>
+  <text x="446" y="28" class="mono" font-size="11" fill="#8B958E">localhost:5173/settings</text>
+  <path d="M1360 19H1381V29H1360Z" stroke="#3B453E" stroke-width="1.2"/>
+  <path d="M1401 19H1422V29H1401Z" stroke="#3B453E" stroke-width="1.2"/>
+
+  <!-- Sidebar -->
+  <rect y="48" width="248" height="852" fill="#0E110F"/>
+  <line x1="247.5" y1="48" x2="247.5" y2="900" stroke="#1E2420"/>
+  <path d="M32 94H42V104H32Z" stroke="#74D9AE" stroke-width="1.5"/>
+  <path d="M38 100H48V110H38Z" stroke="#F0F4F1" stroke-width="1.5"/>
+  <text x="60" y="106" class="sans" font-size="16" font-weight="600" fill="#F0F4F1" letter-spacing="-0.4">NORDHAUS</text>
+  <text x="32" y="151" class="mono" font-size="9" fill="#838D86" letter-spacing="1.1">WORKSPACE</text>
+
+  <rect x="20" y="174" width="208" height="38" rx="5" fill="#171B18" stroke="#29302B"/>
+  <text x="42" y="198" class="sans" font-size="12" fill="#F0F4F1">概览</text>
+  <text x="42" y="240" class="sans" font-size="12" fill="#7F8982">收藏夹</text>
+  <text x="42" y="282" class="sans" font-size="12" fill="#7F8982">订单</text>
+
+  <text x="32" y="339" class="mono" font-size="9" fill="#66716A" letter-spacing="1.1">SETTINGS</text>
+  <rect x="20" y="358" width="208" height="38" rx="5" fill="#10261D"/>
+  <rect x="20" y="362" width="2" height="30" fill="#74D9AE"/>
+  <text x="42" y="382" class="sans" font-size="12" font-weight="500" fill="#74D9AE">外观设置</text>
+  <text x="42" y="420" class="sans" font-size="12" fill="#7F8982">通知偏好</text>
+  <text x="42" y="456" class="sans" font-size="12" fill="#7F8982">账户与安全</text>
+  <text x="42" y="492" class="sans" font-size="12" fill="#7F8982">隐私</text>
+
+  <line x1="20" y1="792" x2="228" y2="792" stroke="#1E2420"/>
+  <circle cx="31" cy="818" r="12" fill="#1B201C" stroke="#29302B"/>
+  <text x="50" y="815" class="sans" font-size="11" fill="#A7B0AA">林默</text>
+  <text x="50" y="829" class="sans" font-size="9" fill="#6F7972">lin.mo@example.com</text>
+
+  <!-- Main content -->
+  <text x="304" y="124" class="sans" font-size="34" font-weight="600" fill="#F0F4F1" letter-spacing="-1.1">外观设置</text>
+  <text x="304" y="156" class="sans" font-size="13" fill="#A8B2AB">跟随系统时，NORDHAUS 使用操作系统的外观偏好；手动选择后不再被覆盖。</text>
+  <rect x="1260" y="100" width="116" height="36" rx="5" fill="#74D9AE"/>
+  <text x="1281" y="123" class="sans" font-size="11" font-weight="600" fill="#0B0D0C">保存更改</text>
+
+  <line x1="304" y1="190" x2="1376" y2="190" stroke="#1E2420"/>
+
+  <text x="304" y="228" class="sans" font-size="16" font-weight="600" fill="#F0F4F1">主题</text>
+  <text x="304" y="252" class="sans" font-size="11" fill="#A8B2AB">选择界面外观。暗色主题适合低光环境。</text>
+
+  <!-- Theme previews -->
+  <g filter="url(#shadow)">
+    <rect x="304" y="276" width="210" height="126" rx="7" fill="#111412" stroke="#29302B"/>
+    <rect x="326" y="294" width="166" height="66" rx="3" fill="#E8E3DA"/>
+    <rect x="338" y="307" width="52" height="5" rx="2.5" fill="#BEB7AC"/>
+    <rect x="338" y="318" width="98" height="3" rx="1.5" fill="#CDC7BC"/>
+    <text x="326" y="383" class="sans" font-size="11" fill="#A7B0AA">浅色</text>
+    <circle cx="484" cy="380" r="5" stroke="#3B453E"/>
+
+    <rect x="532" y="276" width="210" height="126" rx="7" fill="#111412" stroke="#29302B"/>
+    <rect x="554" y="294" width="166" height="66" rx="3" fill="url(#previewDark)"/>
+    <rect x="566" y="307" width="52" height="5" rx="2.5" fill="#3B453E"/>
+    <rect x="566" y="318" width="98" height="3" rx="1.5" fill="#29302B"/>
+    <circle cx="702" cy="378" r="5" stroke="#3B453E"/>
+    <text x="554" y="383" class="sans" font-size="11" fill="#A7B0AA">暗色</text>
+
+    <rect x="760" y="276" width="210" height="126" rx="7" fill="#171B18" stroke="#74D9AE" stroke-width="1.5"/>
+    <rect x="782" y="294" width="80" height="66" rx="3" fill="#E8E3DA"/>
+    <rect x="868" y="294" width="80" height="66" rx="3" fill="url(#previewDark)"/>
+    <text x="782" y="383" class="sans" font-size="11" fill="#F0F4F1">跟随系统</text>
+    <text x="914" y="383" class="mono" font-size="8" fill="#74D9AE">ACTIVE</text>
+    <circle cx="944" cy="380" r="5" stroke="#74D9AE"/>
+    <circle cx="944" cy="380" r="2" fill="#74D9AE"/>
+  </g>
+
+  <!-- Secondary settings -->
+  <line x1="304" y1="436" x2="1376" y2="436" stroke="#1E2420"/>
+  <text x="304" y="473" class="sans" font-size="15" font-weight="600" fill="#F0F4F1">阅读与动态效果</text>
+  <text x="304" y="496" class="sans" font-size="11" fill="#A8B2AB">这些选项会改变文字大小、消息出现方式以及页面过渡。</text>
+
+  <rect x="304" y="518" width="510" height="64" rx="6" fill="#111412" stroke="#232A25"/>
+  <text x="324" y="544" class="sans" font-size="11" fill="#A7B0AA">正文大小</text>
+  <text x="324" y="562" class="sans" font-size="10" fill="#A8B2AB">当前使用标准字号，适合大多数屏幕。</text>
+  <rect x="688" y="535" width="106" height="30" rx="4" fill="#171B18" stroke="#29302B"/>
+  <text x="707" y="554" class="sans" font-size="10" fill="#A7B0AA">标准</text>
+  <path d="M773 546L778 551L773 556" stroke="#7F8982" stroke-width="1.2"/>
+
+  <rect x="304" y="594" width="510" height="64" rx="6" fill="#111412" stroke="#232A25"/>
+  <text x="324" y="620" class="sans" font-size="11" fill="#A7B0AA">减少动态效果</text>
+  <text x="324" y="638" class="sans" font-size="10" fill="#A8B2AB">减弱滚动与过渡动画，保留必要的状态提示。</text>
+  <rect x="742" y="612" width="34" height="18" rx="9" fill="#263029"/>
+  <circle cx="750" cy="621" r="6" fill="#6F7972"/>
+
+  <rect x="834" y="518" width="542" height="140" rx="6" fill="#101310" stroke="#232A25"/>
+  <text x="856" y="546" class="mono" font-size="8" fill="#667069" letter-spacing="1">SYSTEM APPEARANCE</text>
+  <text x="856" y="581" class="sans" font-size="22" font-weight="600" fill="#F0F4F1">深色</text>
+  <text x="856" y="603" class="sans" font-size="10" fill="#A8B2AB">操作系统当前外观：深色</text>
+  <text x="856" y="620" class="sans" font-size="10" fill="#A8B2AB">页面已跟随系统，无手动覆盖</text>
+  <rect x="1254" y="567" width="98" height="26" rx="3" fill="#10261D" stroke="#285440"/>
+  <text x="1267" y="584" class="mono" font-size="8" fill="#74D9AE">FOLLOWED</text>
+
+  <!-- Bottom demo watermark -->
+  <rect x="34" y="838" width="214" height="28" rx="4" fill="#0B0D0C" stroke="#29302B"/>
+  <circle cx="50" cy="852" r="3.5" fill="#E7B86A"/>
+  <text x="61" y="856" class="mono" font-size="8" fill="#838D86">DEMO CAPTURE · SETTINGS · SYSTEM</text>
+  <rect x="1182" y="838" width="224" height="28" rx="4" fill="#10261D" stroke="#285440"/>
+  <text x="1198" y="856" class="mono" font-size="8" fill="#74D9AE">SYSTEM DARK · FOLLOWED</text>
+</svg>

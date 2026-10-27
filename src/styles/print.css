@@ -1,0 +1,305 @@
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 12mm 14mm;
+  }
+
+  :root {
+    color-scheme: light;
+    --bg-canvas: #ffffff;
+    --bg-surface: #ffffff;
+    --bg-raised: #ffffff;
+    --bg-inset: #f5f6f5;
+    --bg-hover: #f2f4f2;
+    --text-primary: #111412;
+    --text-secondary: #323a34;
+    --text-muted: #59635c;
+    --text-inverse: #ffffff;
+    --line-subtle: #dde1dd;
+    --line-default: #c8cec9;
+    --line-strong: #8c968f;
+    --accent: #135c41;
+    --accent-strong: #0d4631;
+    --accent-soft: #edf7f1;
+    --accent-line: #9bc8b5;
+    --risk: #865500;
+    --risk-strong: #684200;
+    --risk-soft: #fbf5e9;
+    --muted-state: #59635c;
+    --muted-state-soft: #f1f3f1;
+  }
+
+  html,
+  body,
+  #root {
+    background: #ffffff !important;
+    color: #111412 !important;
+  }
+
+  .skip-link,
+  .workspace-rail,
+  .workspace-topbar,
+  .workspace-page-header,
+  .report-page__readiness,
+  .report-controls,
+  .toast-region {
+    display: none !important;
+  }
+
+  .workspace-shell,
+  .workspace-body,
+  .workspace-content,
+  .report-page,
+  .report-page__layout {
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .report-document {
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .report-document .brand__name {
+    font-size: 11pt;
+  }
+
+  .report-document .brand__subtitle {
+    font-size: 6.5pt;
+  }
+
+  .report-document__masthead > div .mono {
+    font-size: 6.5pt;
+  }
+
+  .report-document__title > div > .mono {
+    font-size: 7pt;
+  }
+
+  .report-document__title h1 {
+    font-size: 25pt;
+  }
+
+  .report-document__title p {
+    font-size: 9.5pt;
+  }
+
+  .report-document__stamp {
+    min-width: 28mm;
+    padding: 3mm 2.5mm;
+    font-size: 10pt;
+  }
+
+  .report-document__stamp small {
+    font-size: 5.5pt;
+  }
+
+  .report-document__meta dt {
+    font-size: 6pt;
+  }
+
+  .report-document__meta dd {
+    font-size: 8pt;
+  }
+
+  .report-document__section-head > .mono,
+  .report-document__section-head > span:last-child {
+    font-size: 6.5pt;
+  }
+
+  .report-document__section h2 {
+    font-size: 14pt;
+  }
+
+  .report-document__section > p {
+    font-size: 9pt;
+  }
+
+  .report-document__scope > div > .mono {
+    font-size: 6.5pt;
+  }
+
+  .report-document__scope li {
+    font-size: 8.5pt;
+  }
+
+  .report-document__summary strong {
+    font-size: 15pt;
+  }
+
+  .report-document__summary > div > span {
+    font-size: 8pt;
+  }
+
+  .report-document__summary small {
+    font-size: 6.5pt;
+  }
+
+  .report-document__table-head {
+    font-size: 6pt;
+  }
+
+  .report-document__row > div > .mono,
+  .report-document__row > div > small {
+    font-size: 6.5pt;
+  }
+
+  .report-document__row > div > strong {
+    font-size: 8.5pt;
+  }
+
+  .report-document__evidence-cell {
+    font-size: 6.5pt;
+  }
+
+  .report-document__confirm {
+    font-size: 7pt;
+  }
+
+  .report-document__confirm small {
+    font-size: 6pt;
+  }
+
+  .report-document__evidence-item {
+    font-size: 7pt;
+  }
+
+  .report-document__evidence-item > .mono,
+  .report-document__evidence-item em {
+    font-size: 6.5pt;
+  }
+
+  .report-document__evidence-item strong {
+    font-size: 8pt;
+  }
+
+  .report-document__open-items .mono {
+    font-size: 6.5pt;
+  }
+
+  .report-document__open-items strong {
+    font-size: 8pt;
+  }
+
+  .report-document__open-items > div > span:last-child {
+    font-size: 7pt;
+  }
+
+  .report-document__signatures > div:first-child .mono,
+  .report-document__signature-line .mono {
+    font-size: 6pt;
+  }
+
+  .report-document__signatures > div:first-child strong,
+  .report-document__signature-line {
+    font-size: 7.5pt;
+  }
+
+  .report-document__footer .mono {
+    font-size: 6.5pt;
+  }
+
+  .report-document__footer p {
+    font-size: 7pt;
+  }
+
+  .report-document__footer > .mono {
+    font-size: 6pt;
+  }
+
+  .report-document .status-badge {
+    font-size: 7pt;
+  }
+
+  .report-document::before {
+    display: none !important;
+  }
+
+  .report-document__masthead {
+    padding: 0 0 5mm;
+    border-bottom-color: var(--line-default);
+  }
+
+  .report-document__title {
+    padding: 8mm 0 7mm;
+  }
+
+  .report-document__title h1 {
+    font-size: 25pt;
+  }
+
+  .report-document__stamp {
+    transform: rotate(1deg);
+  }
+
+  .report-document__meta {
+    padding: 3mm 0;
+  }
+
+  .report-document__section {
+    padding: 6mm 0;
+    break-inside: auto;
+  }
+
+  .report-document__section-head {
+    break-after: avoid;
+  }
+
+  .report-document__section h2 {
+    break-after: avoid;
+  }
+
+  .report-document__table,
+  .report-document__summary,
+  .report-document__clear,
+  .report-document__signatures {
+    break-inside: avoid;
+  }
+
+  .report-document__row,
+  .report-document__evidence-item,
+  .report-document__open-items > div {
+    break-inside: avoid;
+    min-height: 0;
+    padding-top: 2.5mm;
+    padding-bottom: 2.5mm;
+  }
+
+  .report-document__footer {
+    padding: 5mm 0 0;
+    background: #ffffff !important;
+    break-inside: avoid;
+  }
+
+  .status-badge {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .report-document__title,
+  .report-document__meta,
+  .report-document__section,
+  .report-document__footer {
+    background: #ffffff !important;
+  }
+
+  .report-document__summary,
+  .report-document__meta,
+  .report-document__footer {
+    border-color: var(--line-default);
+  }
+
+  .report-document a {
+    text-decoration: none;
+  }
+}
