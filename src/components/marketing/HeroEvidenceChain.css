@@ -181,14 +181,27 @@
   grid-template-columns: 42px minmax(0, 1fr) 68px 56px;
   align-items: center;
   gap: 10px;
-  min-height: 53px;
+  width: 100%;
+  min-height: 48px;
   padding: 0 13px;
+  border: 0;
   border-bottom: 1px solid var(--line-subtle);
   border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
 }
 
 .evidence-board__row:last-child {
   border-bottom: 0;
+}
+
+.evidence-board__row:hover {
+  background: var(--bg-hover);
 }
 
 .evidence-board__row > .mono:first-child {
@@ -204,6 +217,11 @@
 
 .evidence-board__row.is-selected {
   border-bottom-color: transparent;
+  background: var(--bg-raised);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.evidence-board__row.is-selected.is-risk {
   background: var(--risk-soft);
   box-shadow: inset 2px 0 0 var(--risk);
 }
@@ -216,6 +234,69 @@
   color: var(--text-muted);
   font-size: 0.5625rem;
   text-align: right;
+}
+
+.evidence-board__inspect {
+  min-height: 114px;
+  margin: 0 7px 7px;
+  padding: 12px 14px 13px;
+  overflow: hidden;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+  animation: evidence-enter 180ms var(--ease-out);
+}
+
+@keyframes evidence-enter {
+  from {
+    opacity: 0.3;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.evidence-board__inspect-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--text-muted);
+}
+
+.evidence-board__inspect-top .mono {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+}
+
+.evidence-board__inspect p {
+  max-width: 60ch;
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+}
+
+.evidence-board__inspect code {
+  display: block;
+  margin-top: 9px;
+  padding-top: 8px;
+  overflow: hidden;
+  border-top: 1px dashed var(--line-default);
+  color: var(--text-muted);
+  font-size: 0.5625rem;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evidence-board__inspect code span {
+  color: var(--accent);
 }
 
 .evidence-board__seal {

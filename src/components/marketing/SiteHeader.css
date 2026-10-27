@@ -79,7 +79,7 @@
   font-size: 0.75rem;
 }
 
-.site-header__menu {
+.site-header .site-header__menu {
   display: none;
   margin-left: auto;
 }
@@ -94,7 +94,7 @@
     display: none;
   }
 
-  .site-header__menu {
+  .site-header .site-header__menu {
     display: inline-flex;
   }
 
