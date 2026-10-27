@@ -305,3 +305,82 @@ export async function runRegression({
 export function normalizeNodeId(nodeId) {
   return nodeId.replace(/\[[^\]]*\]$/, "");
 }
+
+/**
+ * 跑整个测试套件，用于发现"基线里已经存在的失败"。
+ *
+ * 这是 check 命令的起点：没有这一步，用户就得自己找出失败的测试并手写契约。
+ * 注意这里保留 failure 的原始消息，它会被写进回执的"契约来源"，让人知道
+ * 这个 Oracle 是从什么现象推导出来的。
+ */
+export async function runSuite({
+  pythonExecutable,
+  cwd,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+}) {
+  const result = await runProcess(
+    pythonExecutable,
+    ["-m", "pytest", "-q", "--tb=line", "--no-header", "-p", "no:cacheprovider"],
+    { cwd, timeoutMs },
+  );
+
+  const failures = [];
+  for (const line of result.output.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    const isFailed = trimmed.startsWith("FAILED ");
+    const isErrored = trimmed.startsWith("ERROR ");
+    if (!isFailed && !isErrored) continue;
+
+    const body = trimmed.slice(trimmed.indexOf(" ") + 1);
+    const separator = body.indexOf(" - ");
+    const nodeId = (separator === -1 ? body : body.slice(0, separator)).trim();
+    const message = separator === -1 ? "" : body.slice(separator + 3).trim();
+
+    // 只接受 pytest 节点 ID，避免把插件输出当成测试。
+    if (!nodeId.includes("::")) continue;
+
+    failures.push({
+      nodeId,
+      kind: isErrored ? "error" : "fail",
+      message,
+    });
+  }
+
+  return {
+    exitCode: result.exitCode,
+    failures,
+    outputTail: result.output.slice(-TAIL_CHARS),
+    durationMs: result.durationMs,
+    timedOut: result.timedOut,
+    // pytest 4 = 用法错误，5 = 没收集到测试：都说明这不是可验证的测试项目。
+    notATestProject: result.exitCode === 4 || result.exitCode === 5,
+  };
+}
+
+/** 收集测试节点列表，供"没有基线失败时手动选择目标"使用。 */
+export async function collectTests({
+  pythonExecutable,
+  cwd,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+}) {
+  const result = await runProcess(
+    pythonExecutable,
+    ["-m", "pytest", "--collect-only", "-q", "--no-header", "-p", "no:cacheprovider"],
+    { cwd, timeoutMs },
+  );
+
+  const nodeIds = [];
+  for (const line of result.output.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed.includes("::")) continue;
+    // collect-only 的输出是纯节点 ID，偶尔带 `::` 之外的说明文字。
+    if (/^[A-Za-z]:\\|^\//.test(trimmed) && !trimmed.includes("::")) continue;
+    nodeIds.push(trimmed.split(" ")[0]);
+  }
+
+  return {
+    exitCode: result.exitCode,
+    nodeIds: [...new Set(nodeIds)],
+    durationMs: result.durationMs,
+  };
+}

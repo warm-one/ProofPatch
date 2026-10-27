@@ -103,7 +103,7 @@ export function decideVerdict({
   if (baseline.pass === totalBaseline) {
     return reason(
       "BASELINE_NOT_FAILING",
-      `基线目标测试 ${totalBaseline} 次全部通过，无法据此证明任何修复。`,
+      `该测试在基线 ${totalBaseline} 次执行中全部通过。`,
     );
   }
 
@@ -175,6 +175,12 @@ export function buildUnprovenList({
   hasSignature,
 }) {
   const items = [];
+
+  if (oracle.inferred) {
+    items.push(
+      "验收契约由基线失败自动推导（强度 L1）：断言是否覆盖根因、而非仅覆盖症状，未经人工复核。",
+    );
+  }
 
   const strengths = [...new Set(oracle.targets.map((target) => target.strength))];
   for (const strength of strengths) {

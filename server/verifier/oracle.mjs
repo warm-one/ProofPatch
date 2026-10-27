@@ -166,6 +166,11 @@ export function normalizeOracle(raw, sourceLabel = "oracle.json") {
     source: sourceLabel,
   };
 
+  // 只有自动推导的契约才带这个标记，避免改变手写契约的既有摘要。
+  if (raw.inferred === true) {
+    normalized.inferred = true;
+  }
+
   // 受保护路径 = 所有目标测试文件 + 显式声明的 protecting 路径。
   const protectedPaths = new Set(targets.map((target) => target.testFile));
   if (Array.isArray(raw.protecting)) {

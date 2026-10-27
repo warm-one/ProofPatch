@@ -98,6 +98,7 @@ export async function verifyPatch({
   baseRef = "HEAD",
   patchPath,
   oraclePath,
+  oracle: providedOracle,
   repeats = 3,
   python,
   timeoutMs = 120_000,
@@ -106,7 +107,11 @@ export async function verifyPatch({
     throw new UserFacingError("repeats 必须是 1 到 9 之间的整数。");
   }
 
-  const { oracle, digest: oracleDigest, protectedPaths } = await loadOracle(oraclePath);
+  // 契约可以来自文件，也可以来自调用方已推导好的对象（check 命令的自动推导路径）。
+  const resolvedOracle = providedOracle
+    ? providedOracle
+    : await loadOracle(oraclePath);
+  const { oracle, digest: oracleDigest, protectedPaths } = resolvedOracle;
   const baseCommit = await resolveCommit(repoPath, baseRef);
 
   let patchText;
@@ -167,6 +172,7 @@ export async function verifyPatch({
         owner: oracle.owner,
         frozenAt: oracle.frozenAt,
         statement: oracle.statement,
+        ...(oracle.inferred ? { inferred: true } : {}),
         protectedPaths,
         targets: oracle.targets.map((target) => ({
           testId: target.testId,

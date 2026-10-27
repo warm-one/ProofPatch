@@ -51,11 +51,11 @@ export const REASON_CODES = {
   },
   CANDIDATE_UNSTABLE: {
     verdict: "rejected",
-    title: "基线已证明失败是稳定的，但候选有时通过有时失败",
+    title: "候选结果不稳定：同一补丁时而通过、时而失败",
   },
   REGRESSION_NEW_FAILURE: {
     verdict: "rejected",
-    title: "候选引入了回归范围内的新增失败",
+    title: "候选打坏了回归范围内的其他测试",
   },
   BASELINE_NOT_FAILING: {
     verdict: "inconclusive",

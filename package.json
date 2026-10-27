@@ -14,6 +14,7 @@
     "test:watch": "vitest --no-cache",
     "test:e2e": "npm run build && node scripts/run-e2e.mjs",
     "verify": "node bin/proofpatch.mjs verify",
+    "check": "node bin/proofpatch.mjs check",
     "verify:receipt": "node bin/proofpatch.mjs verify-receipt",
     "acceptance": "node scripts/acceptance-matrix.mjs",
     "fixture:patches": "node scripts/build-fixture-patches.mjs",
