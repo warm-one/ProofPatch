@@ -8,6 +8,20 @@ import { UserFacingError } from "../errors.mjs";
 const execFileAsync = promisify(execFile);
 
 /**
+ * 工具自己的产物目录。
+ * 它必然出现在 git status 里，但永远不应该被当成"候选代码的一部分"，
+ * 否则第一次运行之后，第二次运行就会被自己的回执挡住。
+ */
+const OWN_ARTIFACT_PREFIXES = [".proofpatch/", ".proofpatch"];
+
+function isOwnArtifact(entry) {
+  const normalized = entry.replaceAll("\\", "/");
+  return OWN_ARTIFACT_PREFIXES.some(
+    (prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`),
+  );
+}
+
+/**
  * 把"工作区当前改动"变成一份可验证的补丁。
  *
  * 为什么不直接用工作区：验证必须在独立副本上进行，
@@ -31,7 +45,11 @@ export async function preparePatchFromWorktree({ repoPath, baseRef = "HEAD" }) {
     );
   }
 
-  const lines = status.split(/\r?\n/).filter((line) => line.trim() !== "");
+  const lines = status
+    .split(/\r?\n/)
+    .filter((line) => line.trim() !== "")
+    .filter((line) => !isOwnArtifact(line.slice(3).trim()));
+
   const untracked = lines.filter((line) => line.startsWith("??"));
 
   if (untracked.length > 0) {
