@@ -1,8 +1,10 @@
+import { BrowserRouter } from "react-router-dom";
+import { AppRoutes } from "./app/router";
+
 export default function App() {
   return (
-    <main>
-      <h1>ProofPatch</h1>
-      <p>AI delivery evidence workspace.</p>
-    </main>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }

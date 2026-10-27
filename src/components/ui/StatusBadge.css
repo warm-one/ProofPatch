@@ -1,0 +1,40 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  min-height: 24px;
+  padding: 2px 7px;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 550;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.status-badge--compact {
+  min-height: 20px;
+  padding: 1px 6px;
+  font-size: 0.5625rem;
+}
+
+.status-badge--passed {
+  border-color: #285440;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.status-badge--failed {
+  border-color: #5a4528;
+  background: var(--risk-soft);
+  color: var(--risk);
+}
+
+.status-badge--unverified {
+  border-color: var(--line-default);
+  background: var(--muted-state-soft);
+  color: var(--muted-state);
+}

@@ -1,0 +1,29 @@
+.demo-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.demo-label__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--risk);
+  box-shadow: 0 0 0 3px rgb(231 184 106 / 10%);
+}
+
+.demo-label--line {
+  padding: 4px 8px;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+}

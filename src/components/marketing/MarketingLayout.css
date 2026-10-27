@@ -1,0 +1,64 @@
+.marketing-shell {
+  overflow-x: clip;
+  background:
+    linear-gradient(rgb(41 48 43 / 12%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(41 48 43 / 12%) 1px, transparent 1px),
+    var(--bg-canvas);
+  background-position: center top;
+  background-size: 72px 72px;
+}
+
+#main-content {
+  width: 100%;
+}
+
+.site-footer {
+  border-top: 1px solid var(--line-subtle);
+  background: var(--bg-canvas);
+}
+
+.site-footer__inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  width: min(calc(100% - 48px), var(--content-width));
+  margin: 0 auto;
+  padding: 40px 0 48px;
+}
+
+.site-footer__brand {
+  display: grid;
+  gap: 14px;
+}
+
+.site-footer__brand p {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.site-footer__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 24px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+@media (max-width: 760px) {
+  .site-footer__inner {
+    align-items: flex-start;
+    flex-direction: column;
+    width: calc(100% - 40px);
+    padding: 32px 0;
+  }
+
+  .site-footer__meta {
+    justify-content: flex-start;
+  }
+}

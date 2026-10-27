@@ -1,0 +1,70 @@
+:root {
+  color-scheme: dark;
+
+  --bg-canvas: #0b0d0c;
+  --bg-surface: #111412;
+  --bg-raised: #171b18;
+  --bg-inset: #0e110f;
+  --bg-hover: #1b211d;
+
+  --text-primary: #f0f4f1;
+  --text-secondary: #a7b0aa;
+  --text-muted: #737d76;
+  --text-inverse: #0b0d0c;
+
+  --line-subtle: #1e2420;
+  --line-default: #29302b;
+  --line-strong: #3b453e;
+
+  --accent: #74d9ae;
+  --accent-strong: #b7f4d7;
+  --accent-soft: #10261d;
+  --accent-line: #2f644e;
+
+  --risk: #e7b86a;
+  --risk-strong: #f3d59e;
+  --risk-soft: #2a2113;
+
+  --muted-state: #929b95;
+  --muted-state-soft: #1b201c;
+  --danger: #e29a8d;
+  --danger-soft: #2b1a17;
+
+  --font-sans: "Inter Variable", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono Variable", "SFMono-Regular", Consolas, monospace;
+
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-display: clamp(2.75rem, 5.2vw, 4.75rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.75rem;
+  --radius-pill: 999px;
+
+  --shadow-float: 0 16px 48px rgb(0 0 0 / 32%);
+  --shadow-dialog: 0 28px 90px rgb(0 0 0 / 58%);
+
+  --content-width: 1240px;
+  --header-height: 72px;
+  --sidebar-width: 224px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 160ms;
+  --duration-base: 220ms;
+}

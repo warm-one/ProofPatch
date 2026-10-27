@@ -1,0 +1,8 @@
+.placeholder-panel {
+  min-height: 430px;
+  background:
+    linear-gradient(rgb(41 48 43 / 10%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(41 48 43 / 10%) 1px, transparent 1px),
+    var(--bg-surface);
+  background-size: 40px 40px;
+}
