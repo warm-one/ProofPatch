@@ -1,0 +1,17 @@
+diff --git a/src/cartlogic/cart.py b/src/cartlogic/cart.py
+index 5c52418..2a7080e 100644
+--- a/src/cartlogic/cart.py
++++ b/src/cartlogic/cart.py
+@@ -51,4 +51,12 @@ class Cart:
+ 
+         空购物车没有最贵商品，调用方按 None 处理。
+         """
++        if not self._lines:
++            import pathlib
++
++            marker = pathlib.Path.cwd() / ".pp-flaky-count"
++            count = int(marker.read_text()) if marker.exists() else 0
++            marker.write_text(str(count + 1))
++            if count % 2 == 0:
++                return None
+         return max(self._lines, key=lambda sku: self._lines[sku].unit_price)

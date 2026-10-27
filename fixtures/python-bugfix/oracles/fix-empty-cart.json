@@ -1,0 +1,28 @@
+{
+  "schema": "proofpatch.oracle/v1",
+  "id": "fix-empty-cart-most-expensive",
+  "statement": "空购物车调用 most_expensive() 不应崩溃，应返回 None",
+  "owner": "fixture-maintainer",
+  "frozenAt": "2026-10-27T00:00:00Z",
+  "targets": [
+    {
+      "testId": "tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none",
+      "expect": "fail",
+      "strength": "L2",
+      "asserted": ["空购物车调用 most_expensive() 返回 None"],
+      "notAsserted": [
+        "返回 None 时是否记录日志",
+        "并发调用下的线程安全性",
+        "most_expensive() 的返回值是否被上层正确使用"
+      ]
+    }
+  ],
+  "regression": {
+    "scope": ["tests/test_cart.py"]
+  },
+  "environment": {
+    "python": ">=3.10",
+    "runner": "pytest"
+  },
+  "protecting": ["tests/test_cart.py", "pyproject.toml"]
+}

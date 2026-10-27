@@ -16,3 +16,8 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Python 夹具运行产物
+__pycache__/
+.pytest_cache/
+*.pyc

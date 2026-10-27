@@ -1,0 +1,9 @@
+[project]
+name = "cartlogic"
+version = "0.1.0"
+description = "ProofPatch 验证夹具：含一个真实的空集合最大值缺陷"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

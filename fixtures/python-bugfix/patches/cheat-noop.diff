@@ -1,0 +1,10 @@
+diff --git a/src/cartlogic/cart.py b/src/cartlogic/cart.py
+index 5c52418..85698a8 100644
+--- a/src/cartlogic/cart.py
++++ b/src/cartlogic/cart.py
+@@ -51,4 +51,5 @@ class Cart:
+ 
+         空购物车没有最贵商品，调用方按 None 处理。
+         """
++        # TODO: 空购物车的情况还需要再确认
+         return max(self._lines, key=lambda sku: self._lines[sku].unit_price)
