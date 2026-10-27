@@ -94,6 +94,20 @@
   letter-spacing: 0.04em;
 }
 
+.hero__local-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 11px;
+  color: var(--accent);
+  font-size: 0.625rem;
+  transition: color var(--duration-fast) ease;
+}
+
+.hero__local-link:hover {
+  color: var(--accent-strong);
+}
+
 .hero__artifact {
   min-width: 0;
 }

@@ -7,7 +7,7 @@ import {
 import type { WorkspaceState } from "../types/workspace";
 
 /**
- * 导出报告摘要时只汇总当前工作台事实，并始终携带演示声明。
+ * 导出报告摘要时只汇总当前工作台事实，并根据演示/真实模式写明数据来源。
  */
 export function buildReportSummary(state: WorkspaceState) {
   const snapshot = getActiveSnapshot(state);
@@ -29,7 +29,7 @@ export function buildReportSummary(state: WorkspaceState) {
   return [
     "PROOFPATCH / DELIVERY REPORT",
     `报告状态：${reportState}`,
-    `项目：storefront-web`,
+    `项目：${state.project.name}`,
     `需求：${state.requirement.id} ${state.requirement.title}`,
     `快照：${snapshot.label} · ${snapshot.commit}`,
     `统计：${readiness.counts.passed} 通过 / ${readiness.counts.failed} 失败 / ${readiness.counts.unverified} 未验证 / ${readiness.pendingConfirmations} 待人工确认`,
@@ -40,6 +40,8 @@ export function buildReportSummary(state: WorkspaceState) {
     `未决项：${readiness.counts.failed + readiness.counts.unverified + readiness.pendingConfirmations}`,
     `最近报告生成：${formatDemoTimestamp(new Date().toISOString())}`,
     "",
-    "声明：本报告来自 ProofPatch 前端演示数据，不连接真实仓库，不执行真实测试。",
+    state.mode === "live"
+      ? "声明：本报告由 ProofPatch 本地运行时生成，命令结果来自用户本机执行，不代表第三方审计结论。"
+      : "声明：本报告来自 ProofPatch 前端演示数据，不连接真实仓库，不执行真实测试。",
   ].join("\n");
 }

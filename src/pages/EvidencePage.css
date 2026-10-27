@@ -312,8 +312,8 @@
 .evidence-card__log > div span {
   overflow: hidden;
   color: var(--text-secondary);
-  font-size: 0.5rem;
-  line-height: 1.45;
+  font-size: 0.625rem;
+  line-height: 1.5;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

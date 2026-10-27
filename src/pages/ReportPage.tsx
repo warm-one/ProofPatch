@@ -12,7 +12,7 @@ import {
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { BrandMark } from "../components/ui/BrandMark";
-import { DemoLabel } from "../components/ui/DemoLabel";
+import { DataModeBadge } from "../components/ui/DataModeBadge";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { WorkspacePageHeader } from "../components/workspace/WorkspacePageHeader";
 import {
@@ -37,7 +37,10 @@ export default function ReportPage() {
   const confirmedCount = getConfirmedCount(state.acceptanceItems);
   const readiness = getReportReadiness(state.acceptanceItems);
   const generatedAt = new Date().toISOString();
-  const reportId = `REPORT-${state.requirement.id.replace("REQ-", "")}-${activeSnapshot.label}`;
+  const isLive = state.mode === "live";
+  const reportId = isLive
+    ? `REPORT-LOCAL-${state.sessionId?.slice(0, 6).toUpperCase() ?? "SESSION"}`
+    : `REPORT-${state.requirement.id.replace("REQ-", "")}-${activeSnapshot.label}`;
   const unresolvedItems = state.acceptanceItems.filter(
     (item) =>
       item.status !== "passed" ||
@@ -143,7 +146,7 @@ export default function ReportPage() {
           </p>
         </div>
         <span className="report-page__readiness-id mono">{reportId}</span>
-        <DemoLabel tone="line" />
+        <DataModeBadge mode={state.mode} />
       </div>
 
       <div className="report-page__layout">
@@ -165,7 +168,7 @@ export default function ReportPage() {
                   : "交付验收报告草稿"}
               </h1>
               <p>
-                一份把 AI 生成内容、人工检查与交付责任装订在一起的验收记录。
+                把需求、真实检查与交付责任装订在一起，让每个结论都能被复核。
               </p>
             </div>
             <span
@@ -181,7 +184,7 @@ export default function ReportPage() {
           <dl className="report-document__meta">
             <div>
               <dt className="mono">PROJECT</dt>
-              <dd className="mono">storefront-web</dd>
+              <dd className="mono">{state.project.name}</dd>
             </div>
             <div>
               <dt className="mono">REQUIREMENT</dt>
@@ -391,10 +394,16 @@ export default function ReportPage() {
             <div>
               <span className="mono">PROOFPATCH / EVIDENCE LEDGER</span>
               <p>
-                本报告由前端演示数据生成，不连接真实仓库，不执行真实测试，不代表真实审计结论。
+                {isLive
+                  ? "本报告由 ProofPatch 本地运行时生成。命令在用户本机执行，终端输出与人工确认均保存在本机会话中。"
+                  : "本报告由前端演示数据生成，不连接真实仓库，不执行真实测试，不代表真实审计结论。"}
               </p>
             </div>
-            <span className="mono">DEMO DATA · NOT A REAL AUDIT</span>
+            <span className="mono">
+              {isLive
+                ? "LOCAL EVIDENCE · HUMAN CONFIRMED"
+                : "DEMO DATA · NOT A REAL AUDIT"}
+            </span>
           </footer>
         </article>
 
@@ -431,7 +440,9 @@ export default function ReportPage() {
             <div className="report-controls__note">
               <ShieldCheck aria-hidden="true" size={15} strokeWidth={1.5} />
               <p>
-                草稿可以打印，但报告封条会保留“不可交付”标识；只有全部关闭后才显示 VERIFIED。
+                {isLive
+                  ? "刷新仓库后，若代码指纹变化，之前的证据会保留为历史并失去交付效力；报告不会掩盖该变化。"
+                  : "草稿可以打印，但报告封条会保留“不可交付”标识；只有全部关闭后才显示 VERIFIED。"}
               </p>
             </div>
             <Link className="report-controls__link" to="/workspace/acceptance">

@@ -1,11 +1,27 @@
 export type AcceptanceStatus = "passed" | "failed" | "unverified";
-export type SnapshotId = "before-fix" | "after-fix";
+export type SnapshotId = string;
 export type ConfirmationState = "pending" | "confirmed";
 export type EvidenceKind = "test-log" | "browser-screenshot";
 export type RunStatus = "running" | "completed" | "interrupted";
 export type SuggestionState = "pending" | "adopted";
 export type AcceptanceSource = "human" | "ai-suggestion";
 export type ToastTone = "info" | "success" | "warning";
+export type WorkspaceMode = "demo" | "live";
+
+export interface ProjectInfo {
+  name: string;
+  path: string;
+  branch: string;
+  baseRef: string;
+  headCommit: string;
+  packageManager?: string;
+  scripts?: Record<string, string>;
+  commandSuggestions?: Array<{
+    title: string;
+    command: string;
+    script: string;
+  }>;
+}
 
 export interface Requirement {
   id: string;
@@ -36,7 +52,7 @@ export interface DiffHunk {
 
 export interface DiffFile {
   path: string;
-  status: "added" | "modified";
+  status: "added" | "modified" | "deleted";
   additions: number;
   deletions: number;
   relatedAcceptanceIds: string[];
@@ -52,6 +68,7 @@ export interface DiffSnapshot {
   summary: string;
   changedPaths: string[];
   files: DiffFile[];
+  fingerprint?: string;
 }
 
 export interface Confirmation {
@@ -69,6 +86,7 @@ export interface AcceptanceItem {
   codeLinks: CodeLink[];
   evidenceIds: string[];
   confirmation: Confirmation;
+  command?: string;
 }
 
 export interface Evidence {
@@ -83,7 +101,8 @@ export interface Evidence {
   scopePaths: string[];
   imageSrc?: string;
   content?: string;
-  isDemo: true;
+  fingerprint?: string;
+  isDemo: boolean;
 }
 
 export interface RunLogLine {
@@ -106,6 +125,7 @@ export interface DemoRun {
   visibleLogCount: number;
   evidenceToAdd: Evidence[];
   caption: string;
+  command?: string;
 }
 
 export interface AiSuggestion {
@@ -124,6 +144,9 @@ export interface Toast {
 }
 
 export interface WorkspaceState {
+  mode: WorkspaceMode;
+  project: ProjectInfo;
+  sessionId?: string;
   requirement: Requirement;
   snapshots: Record<SnapshotId, DiffSnapshot>;
   activeSnapshotId: SnapshotId;

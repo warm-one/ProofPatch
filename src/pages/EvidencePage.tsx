@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { EvidenceDialog } from "../components/workspace/EvidenceDialog";
 import { WorkspacePageHeader } from "../components/workspace/WorkspacePageHeader";
-import { DemoLabel } from "../components/ui/DemoLabel";
+import { DataModeBadge } from "../components/ui/DataModeBadge";
 import { EmptyState } from "../components/ui/EmptyState";
 import {
   formatDemoTimestamp,
@@ -48,18 +48,20 @@ function ImageEvidencePreview({ evidence }: { evidence: Evidence }) {
         onError={() => setFailed(true)}
         src={evidence.imageSrc}
       />
-      <span className="evidence-card__image-label mono">DEMO CAPTURE</span>
+      <span className="evidence-card__image-label mono">
+        {evidence.isDemo ? "DEMO CAPTURE" : "LOCAL CAPTURE"}
+      </span>
     </div>
   );
 }
 
 function LogEvidencePreview({ evidence }: { evidence: Evidence }) {
-  const lines = evidence.content?.split("\n").slice(0, 5) ?? [];
+  const lines = evidence.content?.split("\n").slice(0, 7) ?? [];
 
   return (
     <div className="evidence-card__log">
       <span className="evidence-card__log-title mono">
-        REPLAY OUTPUT / READ ONLY
+        {evidence.isDemo ? "REPLAY OUTPUT / READ ONLY" : "COMMAND OUTPUT / LOCAL"}
       </span>
       <div>
         {lines.map((line, index) => (
@@ -153,7 +155,11 @@ export default function EvidencePage() {
             <ArrowRight aria-hidden="true" size={14} />
           </Link>
         }
-        description="证据不是附件列表：每份截图与日志都归属于一次运行和一个代码快照。当前补丁影响到的旧证据会留在历史中，但失去交付效力。"
+        description={
+          state.mode === "live"
+            ? "每份终端输出都归属于一次本机命令和当时的仓库指纹。代码变化后，旧证据仍保留，但失去当前交付效力。"
+            : "证据不是附件列表：每份截图与日志都归属于一次运行和一个代码快照。当前补丁影响到的旧证据会留在历史中，但失去交付效力。"
+        }
         index="04"
         label="Evidence index"
         title="证据索引"
@@ -207,7 +213,7 @@ export default function EvidencePage() {
             <span aria-hidden="true" />
             只看当前快照
           </button>
-          <DemoLabel label="全部为模拟证据" />
+          <DataModeBadge mode={state.mode} />
         </div>
       </div>
 
@@ -288,7 +294,9 @@ export default function EvidencePage() {
       <footer className="evidence-page__footer">
         <span className="mono">EVIDENCE / APPEND ONLY</span>
         <span>
-          新证据只会追加，不覆盖历史记录；证据失效通过“归属快照”判断，而不是删除文件。
+          {state.mode === "live"
+            ? "证据与仓库指纹绑定；刷新快照不会删除历史，只会让不再匹配的记录失去交付效力。"
+            : "新证据只会追加，不覆盖历史记录；证据失效通过“归属快照”判断，而不是删除文件。"}
         </span>
       </footer>
 

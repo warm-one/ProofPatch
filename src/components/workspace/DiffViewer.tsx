@@ -6,7 +6,8 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { DiffSnapshot } from "../../types/workspace";
-import { DemoLabel } from "../ui/DemoLabel";
+import { useWorkspace } from "../../state/WorkspaceContext";
+import { DataModeBadge } from "../ui/DataModeBadge";
 import { getSnapshotTotals } from "../../state/selectors";
 import "./DiffViewer.css";
 
@@ -15,6 +16,8 @@ interface DiffViewerProps {
 }
 
 export function DiffViewer({ snapshot }: DiffViewerProps) {
+  const { state } = useWorkspace();
+  const isLive = state.mode === "live";
   const [expandedPath, setExpandedPath] = useState(
     snapshot.files[0]?.path ?? "",
   );
@@ -25,7 +28,12 @@ export function DiffViewer({ snapshot }: DiffViewerProps) {
   }, [snapshot.id, snapshot.files]);
 
   return (
-    <section className="diff-viewer panel" aria-label="当前快照的预置代码差异">
+    <section
+      className="diff-viewer panel"
+      aria-label={
+        isLive ? "本地 Git 工作区差异" : "当前演示快照的预置代码差异"
+      }
+    >
       <header className="diff-viewer__header">
         <div>
           <span className="mono">CODE DIFF / SNAPSHOT</span>
@@ -45,6 +53,16 @@ export function DiffViewer({ snapshot }: DiffViewerProps) {
       </div>
 
       <div className="diff-viewer__files">
+        {snapshot.files.length === 0 && (
+          <div className="diff-viewer__empty">
+            <span className="mono">NO TRACKED CHANGES</span>
+            <p>
+              {isLive
+                ? "基线至今没有可读取的工作区差异。代码或未跟踪文件变化后，刷新快照再运行检查。"
+                : "当前演示快照没有可展示的文件差异。"}
+            </p>
+          </div>
+        )}
         {snapshot.files.map((file) => {
           const isExpanded = expandedPath === file.path;
           return (
@@ -68,7 +86,11 @@ export function DiffViewer({ snapshot }: DiffViewerProps) {
                 )}
               </span>
               <span className="diff-file__status mono">
-                {file.status === "added" ? "A" : "M"}
+                {file.status === "added"
+                  ? "A"
+                  : file.status === "deleted"
+                    ? "D"
+                    : "M"}
               </span>
               <FileCode2
                 aria-hidden="true"
@@ -137,8 +159,12 @@ export function DiffViewer({ snapshot }: DiffViewerProps) {
       })}
 
       <footer className="diff-viewer__footer">
-        <DemoLabel label="预置差异 · 不读取真实仓库" />
-        <span className="mono">DIFF VIEW / READ ONLY</span>
+        <DataModeBadge mode={state.mode} />
+        <span className="mono">
+          {isLive
+            ? "GIT DIFF / READ ONLY · UNTRACKED INCLUDED"
+            : "DIFF VIEW / READ ONLY"}
+        </span>
       </footer>
     </section>
   );

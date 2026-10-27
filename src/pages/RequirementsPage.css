@@ -80,6 +80,27 @@
   color: var(--risk-strong);
 }
 
+.requirements-page__snapshot-notice.is-live {
+  border-style: solid;
+  border-color: var(--accent-line);
+  background:
+    linear-gradient(90deg, rgb(116 217 174 / 4%), transparent 46%),
+    var(--accent-soft);
+  color: var(--accent);
+}
+
+.requirements-page__snapshot-notice.is-live strong {
+  color: var(--accent-strong);
+}
+
+.requirements-page__snapshot-notice.is-live a {
+  color: var(--accent);
+}
+
+.requirements-page__snapshot-notice.is-live a:hover {
+  color: var(--accent-strong);
+}
+
 .requirements-page__meta-row {
   display: flex;
   flex-wrap: wrap;

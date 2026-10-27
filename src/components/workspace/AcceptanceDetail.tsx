@@ -22,7 +22,7 @@ import {
 } from "../../state/selectors";
 import { useWorkspace } from "../../state/WorkspaceContext";
 import type { AcceptanceItem, Evidence } from "../../types/workspace";
-import { DemoLabel } from "../ui/DemoLabel";
+import { DataModeBadge } from "../ui/DataModeBadge";
 import { StatusBadge } from "../ui/StatusBadge";
 import "./AcceptanceDetail.css";
 
@@ -40,6 +40,7 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
     confirmAcceptance,
   } = useWorkspace();
   const activeSnapshot = getActiveSnapshot(state);
+  const isLive = state.mode === "live";
   const allEvidence = getEvidenceForItem(item, state);
   const currentEvidence = allEvidence.filter(
     (evidence) =>
@@ -110,6 +111,18 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
         <h2>{item.title}</h2>
         <p className="acceptance-detail__criterion">{item.criterion}</p>
 
+        {item.command && (
+          <section className="acceptance-detail__section">
+            <div className="acceptance-detail__section-head">
+              <span className="mono">CHECK COMMAND</span>
+              <span>本地执行</span>
+            </div>
+            <pre className="acceptance-detail__command">
+              <span aria-hidden="true">$</span> {item.command}
+            </pre>
+          </section>
+        )}
+
         <section className="acceptance-detail__section">
           <div className="acceptance-detail__section-head">
             <span className="mono">CODE LINKS</span>
@@ -117,7 +130,9 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
           </div>
           {item.codeLinks.length === 0 ? (
             <p className="acceptance-detail__empty-copy">
-              尚无代码关联。AI 建议已转为可验证条件，但还没有证据能证明它被实现。
+              {isLive
+                ? "该检查通过命令输出与当前仓库快照关联，尚未声明具体代码行。"
+                : "尚无代码关联。AI 建议已转为可验证条件，但还没有证据能证明它被实现。"}
             </p>
           ) : (
             <div className="acceptance-detail__links">
@@ -208,7 +223,7 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
       <footer className="acceptance-detail__decision">
         <div className="acceptance-detail__decision-head">
           <span className="mono">DELIVERY DECISION</span>
-          <DemoLabel label="演示回放" />
+          <DataModeBadge mode={state.mode} />
         </div>
 
         {runningRun ? (
@@ -216,7 +231,8 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
             <div className="acceptance-detail__running-head">
               <span className="acceptance-detail__spinner" aria-hidden="true" />
               <span>
-                正在回放 <strong className="mono">{runningRun.id}</strong>
+                {isLive ? "正在执行" : "正在回放"}{" "}
+                <strong className="mono">{runningRun.id}</strong>
               </span>
             </div>
             <div className="acceptance-detail__run-logs">
@@ -232,6 +248,11 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
                     <p>{line.text}</p>
                   </div>
                 ))}
+              {runningRun.visibleLogCount === 0 && (
+                <p className="acceptance-detail__action-note">
+                  等待本机命令产生输出…
+                </p>
+              )}
             </div>
             <div className="acceptance-detail__running-actions">
               <Link to="/workspace/runs">
@@ -239,7 +260,7 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
                 <ArrowRight aria-hidden="true" size={12} />
               </Link>
               <button onClick={interruptRun} type="button">
-                中止回放
+                {isLive ? "中止执行" : "中止回放"}
               </button>
             </div>
           </div>
@@ -262,7 +283,7 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
               <div>
                 <strong>自动检查通过，等待人工确认</strong>
                 <p>
-                  请先检查证据是否属于当前快照。确认是本演示中的唯一人工签字动作。
+                  请先检查证据是否属于当前快照。确认是交付前唯一的人工签字动作。
                 </p>
               </div>
             </div>
@@ -281,7 +302,7 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
               </p>
             )}
           </>
-        ) : item.status === "failed" && activeSnapshot.id === "before-fix" ? (
+        ) : item.status === "failed" && !isLive ? (
           <>
             <div className="acceptance-detail__blocking">
               <ShieldCheck aria-hidden="true" size={16} strokeWidth={1.5} />
@@ -304,12 +325,32 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
           </>
         ) : (
           <>
-            <div className="acceptance-detail__unverified">
-              <Clock3 aria-hidden="true" size={16} strokeWidth={1.5} />
+            <div
+              className={
+                item.status === "failed"
+                  ? "acceptance-detail__blocking"
+                  : "acceptance-detail__unverified"
+              }
+            >
+              {item.status === "failed" ? (
+                <ShieldCheck aria-hidden="true" size={16} strokeWidth={1.5} />
+              ) : (
+                <Clock3 aria-hidden="true" size={16} strokeWidth={1.5} />
+              )}
               <div>
-                <strong>尚无当前快照的有效证据</strong>
+                <strong>
+                  {item.status === "failed"
+                    ? "命令检查失败"
+                    : isLive
+                      ? "尚无当前仓库快照的真实证据"
+                      : "尚无当前快照的有效证据"}
+                </strong>
                 <p>
-                  运行预置回放会生成日志与截图，但结果只会记录为事实，不会自动确认交付。
+                  {item.status === "failed"
+                    ? "真实命令返回非零退出码。修复代码后可刷新快照并重新运行；旧失败证据会保留在历史中。"
+                    : isLive
+                      ? "运行配置的本机命令后，终端输出才会被保存为证据。自动结果仍需要人工确认。"
+                      : "运行预置回放会生成日志与截图，但结果只会记录为事实，不会自动确认交付。"}
                 </p>
               </div>
             </div>
@@ -319,12 +360,16 @@ export function AcceptanceDetail({ item }: AcceptanceDetailProps) {
               onClick={() => startAcceptanceRun(item.id)}
               type="button"
             >
-              运行本项演示检查
+              {item.status === "failed"
+                ? "重新运行本项检查"
+                : isLive
+                  ? "运行本项真实检查"
+                  : "运行本项演示检查"}
               <ArrowRight aria-hidden="true" size={15} />
             </button>
             {isBlockedByOtherRun && (
               <p className="acceptance-detail__action-note">
-                另一项检查正在回放，请等待结束或前往检查运行中止。
+                另一项检查正在执行，请等待结束或前往检查运行中止。
               </p>
             )}
           </>

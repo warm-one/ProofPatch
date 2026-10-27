@@ -6,9 +6,9 @@ import {
   Square,
   TerminalSquare,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { DemoLabel } from "../components/ui/DemoLabel";
+import { DataModeBadge } from "../components/ui/DataModeBadge";
 import { WorkspacePageHeader } from "../components/workspace/WorkspacePageHeader";
 import {
   formatDemoTimestamp,
@@ -48,22 +48,15 @@ export default function RunsPage() {
     useWorkspace();
   const navigate = useNavigate();
   const activeSnapshot = getActiveSnapshot(state);
-  const [selectedRunId, setSelectedRunId] = useState(
-    () => state.runs[state.runs.length - 1]?.id,
-  );
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
     "idle",
   );
 
-  useEffect(() => {
-    if (!state.runs.some((run) => run.id === selectedRunId)) {
-      setSelectedRunId(state.runs[state.runs.length - 1]?.id);
-    }
-  }, [selectedRunId, state.runs]);
-
   const selectedRun =
     state.runs.find((run) => run.id === selectedRunId) ??
     state.runs[state.runs.length - 1];
+  const isLive = state.mode === "live";
 
   const runEvidence = useMemo(
     () =>
@@ -83,7 +76,9 @@ export default function RunsPage() {
       .map((line) => `${line.at}  [${line.tone.toUpperCase()}]  ${line.text}`)
       .join("\n");
     const copied = await copyText(
-      `PROOFPATCH / ${selectedRun.id} / DEMO REPLAY\n${visibleLogs}\n\n演示数据，不包含真实命令执行结果。`,
+      isLive
+        ? `PROOFPATCH / ${selectedRun.id} / LOCAL COMMAND\n${visibleLogs}\n\n由本机命令执行产生，输出可能包含敏感信息。`
+        : `PROOFPATCH / ${selectedRun.id} / DEMO REPLAY\n${visibleLogs}\n\n演示数据，不包含真实命令执行结果。`,
     );
     setCopyState(copied ? "copied" : "failed");
     notify(
@@ -119,18 +114,28 @@ export default function RunsPage() {
             <ArrowRight aria-hidden="true" size={14} />
           </Link>
         }
-        description="检查运行只记录可复核的事实：预置时间线、退出结果与对应证据。运行结束不代表交付完成，人工确认仍在验收矩阵中完成。"
+        description={
+          isLive
+            ? "每次真实命令运行都会保留时间、退出结果与原始终端输出。失败与中止也进入历史；命令结束不代表交付完成。"
+            : "检查运行只记录可复核的事实：预置时间线、退出结果与对应证据。运行结束不代表交付完成，人工确认仍在验收矩阵中完成。"
+        }
         index="03"
         label="Verification runs"
         title="检查运行"
       />
 
       <div className="runs-page__strip">
-        <span className="mono">REPLAY MODE / NO REAL COMMANDS</span>
-        <span>所有日志按固定脚本回放，不会访问仓库、模型或本地进程。</span>
+        <span className="mono">
+          {isLive ? "LOCAL EXECUTION / REAL COMMAND" : "REPLAY MODE / NO REAL COMMANDS"}
+        </span>
+        <span>
+          {isLive
+            ? "日志来自你在本地配置的命令；输出只保存在本机会话中。"
+            : "所有日志按固定脚本回放，不会访问仓库、模型或本地进程。"}
+        </span>
         {isRunning && (
           <span className="runs-page__live mono">
-            回放进行中
+            {isLive ? "命令执行中" : "回放进行中"}
             <span aria-hidden="true" />
           </span>
         )}
@@ -141,7 +146,7 @@ export default function RunsPage() {
           <header className="run-history__header">
             <div>
               <span className="mono">RUN HISTORY</span>
-              <strong>{state.runs.length} 次预置回放</strong>
+              <strong>{state.runs.length} 次{isLive ? "真实执行" : "预置回放"}</strong>
             </div>
             <TerminalSquare aria-hidden="true" size={16} strokeWidth={1.4} />
           </header>
@@ -167,9 +172,10 @@ export default function RunsPage() {
                   </span>
                   <strong>{run.label}</strong>
                   <span className="run-history__meta mono">
-                    {run.snapshotId === "before-fix"
-                      ? "实现快照"
-                      : "修复快照"}{" "}
+                    {state.snapshots[run.snapshotId]?.displayName ??
+                      (run.snapshotId === "before-fix"
+                        ? "实现快照"
+                        : "工作区快照")}{" "}
                     · {formatDemoTimestamp(run.startedAt)}
                   </span>
                   <span className="run-history__outcomes">
@@ -208,14 +214,24 @@ export default function RunsPage() {
                 <RunStatusIcon status={selectedRun.status} />
                 {runStatusLabels[selectedRun.status]}
               </span>
-              <DemoLabel tone="line" />
+              <DataModeBadge mode={state.mode} />
             </div>
           </header>
+
+          {selectedRun.command && (
+            <div className="run-detail__command">
+              <span aria-hidden="true">$</span>
+              <code className="mono">{selectedRun.command}</code>
+            </div>
+          )}
 
           <dl className="run-detail__meta">
             <div>
               <dt className="mono">SNAPSHOT</dt>
-              <dd>{selectedRun.snapshotId === "before-fix" ? "实现快照" : "修复快照"}</dd>
+              <dd>
+                {state.snapshots[selectedRun.snapshotId]?.displayName ??
+                  selectedRun.snapshotId}
+              </dd>
             </div>
             <div>
               <dt className="mono">STARTED</dt>
@@ -289,7 +305,7 @@ export default function RunsPage() {
                     type="button"
                   >
                     <Square aria-hidden="true" size={9} fill="currentColor" />
-                    中止回放
+                    {isLive ? "中止执行" : "中止回放"}
                   </button>
                 )}
                 <button
@@ -320,7 +336,7 @@ export default function RunsPage() {
                     aria-hidden="true"
                     className="run-status-spinner is-large"
                   />
-                  正在等待预置时间线…
+                  正在等待{isLive ? "命令输出" : "预置时间线"}…
                 </div>
               )}
               {visibleLogs.map((line, index) => (
@@ -353,18 +369,24 @@ export default function RunsPage() {
             </div>
             {selectedRun.status === "running" && (
               <p className="run-detail__evidence-empty">
-                回放结束后，截图与日志才会写入证据索引。
+                {isLive
+                  ? "命令结束后，终端输出才会写入证据索引。"
+                  : "回放结束后，截图与日志才会写入证据索引。"}
               </p>
             )}
             {selectedRun.status === "interrupted" && (
               <p className="run-detail__evidence-empty is-risk">
-                回放被中断，没有产生新证据。相关验收项保持未验证。
+                {isLive
+                  ? "命令被中止，没有产生新证据。相关验收项保持原状态。"
+                  : "回放被中断，没有产生新证据。相关验收项保持未验证。"}
               </p>
             )}
             {selectedRun.status === "completed" &&
               runEvidence.length === 0 && (
                 <p className="run-detail__evidence-empty">
-                  本次基线回放引用了已有证据，未新增独立附件。
+                  {isLive
+                    ? "本次命令执行没有写入证据，请查看日志状态。"
+                    : "本次基线回放引用了已有证据，未新增独立附件。"}
                 </p>
               )}
             {runEvidence.length > 0 && (
@@ -391,7 +413,7 @@ export default function RunsPage() {
           <footer className="run-detail__footer">
             <span>
               <Clock3 aria-hidden="true" size={13} strokeWidth={1.5} />
-              预置时间线，无真实执行
+              {isLive ? "真实命令 · 本机执行" : "预置时间线 · 无真实执行"}
             </span>
             <span className="mono">
               SNAPSHOT / {activeSnapshot.label}

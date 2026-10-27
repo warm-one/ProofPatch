@@ -73,6 +73,16 @@
   text-transform: uppercase;
 }
 
+.site-header__local {
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  transition: color var(--duration-fast) ease;
+}
+
+.site-header__local:hover {
+  color: var(--accent);
+}
+
 .site-header__actions .pp-button {
   min-height: 36px;
   padding: 0.45rem 0.8rem;
@@ -119,6 +129,17 @@
 
   .site-header__mobile .pp-button {
     margin-top: 16px;
+  }
+
+  .site-header__mobile .site-header__mobile-local {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 36px;
+    margin-top: 8px;
+    border-bottom: 0;
+    color: var(--text-muted);
+    font-size: 0.6875rem;
   }
 
   .site-header__mobile p {

@@ -153,6 +153,25 @@
   line-height: 1.65;
 }
 
+.acceptance-detail__command {
+  margin: 0;
+  padding: 10px;
+  overflow-x: auto;
+  border: 1px solid var(--line-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.acceptance-detail__command > span {
+  color: var(--accent);
+}
+
 .acceptance-detail__evidence-list {
   display: grid;
   gap: 5px;

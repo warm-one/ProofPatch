@@ -5,6 +5,38 @@
   background: var(--bg-canvas);
 }
 
+.workspace-boot {
+  display: grid;
+  min-height: 100vh;
+  align-content: center;
+  justify-items: center;
+  gap: 16px;
+  background:
+    linear-gradient(rgb(41 48 43 / 10%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(41 48 43 / 10%) 1px, transparent 1px),
+    var(--bg-canvas);
+  background-size: 64px 64px;
+}
+
+.workspace-boot__spinner {
+  color: var(--accent);
+  animation: pp-spin 900ms linear infinite;
+}
+
+.workspace-boot p {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.workspace-boot > a {
+  color: var(--text-muted);
+  font-size: 0.625rem;
+}
+
+.workspace-boot > a:hover {
+  color: var(--accent);
+}
+
 .workspace-rail {
   position: sticky;
   top: 0;

@@ -1,4 +1,11 @@
-import { Check, Minus, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  Check,
+  Minus,
+  ShieldCheck,
+  Sparkles,
+  TerminalSquare,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import { useWorkspace } from "../../state/WorkspaceContext";
 import { getUnresolvedCount } from "../../state/selectors";
 import type { DiffSnapshot } from "../../types/workspace";
@@ -19,6 +26,7 @@ export function RequirementDocument({
   const pendingSuggestions = state.suggestions.filter(
     (suggestion) => suggestion.state === "pending",
   ).length;
+  const isLive = state.mode === "live";
 
   return (
     <article className="requirement-document panel">
@@ -69,23 +77,37 @@ export function RequirementDocument({
           </ul>
         </section>
 
-        <aside className="requirement-document__suggestion">
-          <Sparkles aria-hidden="true" size={16} strokeWidth={1.5} />
+        <aside
+          className={`requirement-document__suggestion${isLive ? " is-live" : ""}`}
+        >
+          {isLive ? (
+            <TerminalSquare aria-hidden="true" size={16} strokeWidth={1.5} />
+          ) : (
+            <Sparkles aria-hidden="true" size={16} strokeWidth={1.5} />
+          )}
           <div>
             <strong>
-              {pendingSuggestions > 0
-                ? `AI 发现了 ${pendingSuggestions} 条尚未采纳的边界建议`
-                : "AI 建议已全部处理"}
+              {isLive
+                ? `已配置 ${state.acceptanceItems.length} 项真实检查`
+                : pendingSuggestions > 0
+                  ? `AI 发现了 ${pendingSuggestions} 条尚未采纳的边界建议`
+                  : "AI 建议已全部处理"}
             </strong>
             <p>
-              {pendingSuggestions > 0
-                ? "建议只有经人采纳并补充证据后，才会进入验收矩阵。"
-                : "已采纳的建议仍需运行检查与人工确认，不能直接进入交付报告。"}
+              {isLive
+                ? "每项检查都由本机命令产出证据；失败、超时与中止都会如实保留，不会自动变成通过。"
+                : pendingSuggestions > 0
+                  ? "建议只有经人采纳并补充证据后，才会进入验收矩阵。"
+                  : "已采纳的建议仍需运行检查与人工确认，不能直接进入交付报告。"}
             </p>
           </div>
-          <button onClick={onOpenSuggestions} type="button">
-            查看建议
-          </button>
+          {isLive ? (
+            <Link to="/workspace/acceptance">查看矩阵</Link>
+          ) : (
+            <button onClick={onOpenSuggestions} type="button">
+              查看建议
+            </button>
+          )}
         </aside>
       </div>
 
@@ -111,7 +133,9 @@ export function RequirementDocument({
           </div>
         </dl>
         <span className="requirement-document__demo mono">
-          预置需求 · 非真实客户文档
+          {isLive
+            ? "本地 Git 工作区 · 只读"
+            : "预置需求 · 非真实客户文档"}
         </span>
       </footer>
     </article>

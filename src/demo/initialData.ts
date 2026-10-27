@@ -652,6 +652,15 @@ const initialRunLogs = [
 
 export function createInitialDemoState(): WorkspaceState {
   return {
+    mode: "demo",
+    project: {
+      name: "storefront-web",
+      path: "demo://storefront-web",
+      branch: "demo",
+      baseRef: "demo",
+      headCommit: "a41c7f",
+      packageManager: "npm",
+    },
     requirement,
     snapshots: {
       "before-fix": beforeFixSnapshot,

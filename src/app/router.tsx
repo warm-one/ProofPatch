@@ -8,7 +8,7 @@ import RequirementsPage from "../pages/RequirementsPage";
 import RunsPage from "../pages/RunsPage";
 import EvidencePage from "../pages/EvidencePage";
 import ReportPage from "../pages/ReportPage";
-import { WorkspaceProvider } from "../state/WorkspaceContext";
+import ConnectPage from "../pages/ConnectPage";
 
 export function AppRoutes() {
   return (
@@ -18,14 +18,9 @@ export function AppRoutes() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
 
-      <Route
-        path="workspace"
-        element={
-          <WorkspaceProvider>
-            <WorkspaceLayout />
-          </WorkspaceProvider>
-        }
-      >
+      <Route path="connect" element={<ConnectPage />} />
+
+      <Route path="workspace" element={<WorkspaceLayout />}>
         <Route index element={<Navigate replace to="acceptance" />} />
         <Route path="requirements" element={<RequirementsPage />} />
         <Route path="acceptance" element={<AcceptancePage />} />

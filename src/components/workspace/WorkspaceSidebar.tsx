@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  ArrowRight,
   FileDiff,
   Image as ImageIcon,
   ListChecks,
@@ -14,7 +15,7 @@ import {
 } from "../../state/selectors";
 import { useWorkspace } from "../../state/WorkspaceContext";
 import { BrandMark } from "../ui/BrandMark";
-import { DemoLabel } from "../ui/DemoLabel";
+import { DataModeBadge } from "../ui/DataModeBadge";
 import "./WorkspaceSidebar.css";
 
 const workspaceNavigation = [
@@ -71,12 +72,12 @@ export function WorkspaceSidebar({ onNavigate }: WorkspaceSidebarProps) {
         >
           <BrandMark subtitle="Evidence workspace" />
         </Link>
-        <DemoLabel tone="line" />
+        <DataModeBadge mode={state.mode} />
       </div>
 
       <div className="workspace-sidebar__case">
         <span className="workspace-sidebar__case-label mono">CURRENT CASE</span>
-        <strong>storefront-web</strong>
+        <strong>{state.project.name}</strong>
         <span>{state.requirement.title}</span>
         <span className="mono">
           {state.requirement.id} · {snapshot.displayName} ·{" "}
@@ -114,13 +115,29 @@ export function WorkspaceSidebar({ onNavigate }: WorkspaceSidebarProps) {
       </nav>
 
       <div className="workspace-sidebar__bottom">
-        <div className="workspace-sidebar__notice">
+        <div
+          className={`workspace-sidebar__notice${state.mode === "live" ? " is-live" : ""}`}
+        >
           <span className="workspace-sidebar__notice-dot" />
           <div>
-            <strong>本地演示模式</strong>
-            <p>不连接仓库，不执行真实测试。</p>
+            <strong>
+              {state.mode === "live" ? "本地真实模式" : "本地演示模式"}
+            </strong>
+            <p>
+              {state.mode === "live"
+                ? "命令在本机执行，证据已持久化。"
+                : "不连接仓库，不执行真实测试。"}
+            </p>
           </div>
         </div>
+        <Link
+          className="workspace-sidebar__connect"
+          onClick={onNavigate}
+          to="/connect"
+        >
+          {state.mode === "live" ? "管理本地连接" : "连接本地项目"}
+          <ArrowRight aria-hidden="true" size={13} />
+        </Link>
         <Link className="workspace-sidebar__back" onClick={onNavigate} to="/">
           <ArrowLeft aria-hidden="true" size={14} />
           返回产品首页

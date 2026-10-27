@@ -79,6 +79,29 @@
   background: var(--bg-inset);
 }
 
+.diff-viewer__empty {
+  display: grid;
+  min-height: 110px;
+  padding: 16px;
+  align-content: center;
+  justify-items: center;
+  gap: 7px;
+  text-align: center;
+}
+
+.diff-viewer__empty .mono {
+  color: var(--text-muted);
+  font-size: 0.4688rem;
+  letter-spacing: 0.05em;
+}
+
+.diff-viewer__empty p {
+  max-width: 42ch;
+  color: var(--text-muted);
+  font-size: 0.625rem;
+  line-height: 1.65;
+}
+
 .diff-file {
   display: grid;
   grid-template-columns: 16px 22px 18px minmax(0, 1fr) auto;

@@ -164,6 +164,32 @@
   color: var(--risk-strong);
 }
 
+.requirement-document__suggestion.is-live {
+  border-color: var(--accent-line);
+  background:
+    linear-gradient(90deg, rgb(116 217 174 / 4%), transparent 42%),
+    var(--accent-soft);
+}
+
+.requirement-document__suggestion.is-live > svg {
+  color: var(--accent);
+}
+
+.requirement-document__suggestion.is-live strong {
+  color: var(--accent-strong);
+}
+
+.requirement-document__suggestion.is-live a {
+  padding: 3px 0;
+  color: var(--accent);
+  font-size: 0.5625rem;
+  white-space: nowrap;
+}
+
+.requirement-document__suggestion.is-live a:hover {
+  color: var(--accent-strong);
+}
+
 .requirement-document__footer {
   margin-top: auto;
   padding: 0 24px 18px;
@@ -225,6 +251,12 @@
   }
 
   .requirement-document__suggestion button {
+    grid-column: 2;
+    justify-self: start;
+    padding-top: 4px;
+  }
+
+  .requirement-document__suggestion.is-live a {
     grid-column: 2;
     justify-self: start;
     padding-top: 4px;

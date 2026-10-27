@@ -19,7 +19,7 @@ import {
 import { useWorkspace } from "../../state/WorkspaceContext";
 import type { Evidence } from "../../types/workspace";
 import { copyText } from "../../utils/clipboard";
-import { DemoLabel } from "../ui/DemoLabel";
+import { DataModeBadge } from "../ui/DataModeBadge";
 import "./EvidenceDialog.css";
 
 interface EvidenceDialogProps {
@@ -115,7 +115,9 @@ export function EvidenceDialog({
         ? activeEvidence.content ?? activeEvidence.description
         : `${activeEvidence.id}\n${activeEvidence.title}\n${activeEvidence.description}\n${activeEvidence.imageSrc ?? ""}`;
     const success = await copyText(
-      `PROOFPATCH / ${activeEvidence.id}\n${text}\n\n演示证据，不包含真实执行结果。`,
+      activeEvidence.isDemo
+        ? `PROOFPATCH / ${activeEvidence.id}\n${text}\n\n演示证据，不包含真实执行结果。`
+        : `PROOFPATCH / ${activeEvidence.id}\n${text}\n\n本机命令证据，输出可能包含敏感信息。`,
     );
     setCopied(success);
     notify(
@@ -186,7 +188,11 @@ export function EvidenceDialog({
                 <div className="evidence-dialog__image-fallback">
                   <ImageIcon aria-hidden="true" size={28} strokeWidth={1.3} />
                   <strong>截图预览不可用</strong>
-                  <p>证据元信息仍可核对；演示中不会伪造缺失的图片。</p>
+                  <p>
+                    {activeEvidence.isDemo
+                      ? "证据元信息仍可核对；演示中不会伪造缺失的图片。"
+                      : "证据元信息仍可核对；本机证据文件可能已被移动或删除。"}
+                  </p>
                 </div>
               )
             ) : (
@@ -221,7 +227,7 @@ export function EvidenceDialog({
 
           <aside className="evidence-dialog__meta">
             <div className="evidence-dialog__meta-top">
-              <DemoLabel tone="line" />
+              <DataModeBadge mode={state.mode} />
               <span
                 className={`evidence-dialog__relation is-${relation}`}
               >

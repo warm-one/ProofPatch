@@ -1,6 +1,7 @@
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useWorkspace } from "../../state/WorkspaceContext";
 import { BrandMark } from "../ui/BrandMark";
 import "./SiteHeader.css";
 
@@ -13,6 +14,9 @@ const navigation = [
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { state, serverStatus } = useWorkspace();
+  const isLive = state.mode === "live";
+  const workspaceLabel = isLive ? "打开真实工作区" : "进入工作台";
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -45,9 +49,14 @@ export function SiteHeader() {
         </nav>
 
         <div className="site-header__actions">
+          {serverStatus === "available" && (
+            <Link className="site-header__local" to="/connect">
+              连接本地项目
+            </Link>
+          )}
           <span className="site-header__demo">Interactive demo</span>
           <Link className="pp-button pp-button--secondary" to="/workspace">
-            进入工作台
+            {workspaceLabel}
             <ArrowUpRight aria-hidden="true" size={15} strokeWidth={1.8} />
           </Link>
         </div>
@@ -89,10 +98,23 @@ export function SiteHeader() {
             onClick={() => setMenuOpen(false)}
             to="/workspace"
           >
-            进入交互工作台
+            {workspaceLabel}
             <ArrowUpRight aria-hidden="true" size={16} />
           </Link>
-          <p>预置数据 · 不连接仓库 · 不执行真实测试</p>
+          {serverStatus === "available" && (
+            <Link
+              className="site-header__mobile-local"
+              onClick={() => setMenuOpen(false)}
+              to="/connect"
+            >
+              连接本地项目
+            </Link>
+          )}
+          <p>
+            {isLive
+              ? "本地真实数据 · 命令在本机执行"
+              : "预置数据 · 不连接仓库 · 不执行真实测试"}
+          </p>
         </nav>
       )}
     </header>

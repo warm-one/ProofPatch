@@ -293,6 +293,30 @@
   gap: 9px;
 }
 
+.run-detail__command {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 9px 22px;
+  border-bottom: 1px solid var(--line-subtle);
+  background: #080a09;
+}
+
+.run-detail__command > span {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+}
+
+.run-detail__command code {
+  overflow-wrap: anywhere;
+  color: var(--text-secondary);
+  font-size: 0.5625rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 .run-detail__meta {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

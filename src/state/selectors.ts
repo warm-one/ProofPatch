@@ -24,6 +24,11 @@ export function getEvidenceRelation(
   evidence: Evidence,
   snapshot: DiffSnapshot,
 ): EvidenceRelation {
+  if (evidence.fingerprint && snapshot.fingerprint) {
+    return evidence.fingerprint === snapshot.fingerprint
+      ? "current"
+      : "stale";
+  }
   if (evidence.snapshotId === snapshot.id) return "current";
 
   const affected = evidence.scopePaths.some((path) =>
