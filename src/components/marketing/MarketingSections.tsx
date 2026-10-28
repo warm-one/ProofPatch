@@ -396,8 +396,8 @@ export function ReportPreviewSection() {
               自动结果与人工签字分开记录。
             </li>
           </ul>
-          <Link className="pp-button pp-button--primary" to="/workspace">
-            用 3 分钟走完一次有证据的交付
+          <Link className="pp-button pp-button--primary" to="/receipt">
+            打开一份真实回执
             <ArrowRight aria-hidden="true" size={16} />
           </Link>
         </div>
@@ -515,10 +515,10 @@ export function ClosingSection() {
           </h2>
           <div>
             <p>
-              打开演示工作台，从一项失败的对比度检查开始，走完修复、复测与确认。
+              打开一份被拒绝的验证记录：目标测试全部通过，却被回归检查发现打坏了另一个功能。
             </p>
-            <Link className="pp-button pp-button--primary" to="/workspace">
-              进入 ProofPatch 工作台
+            <Link className="pp-button pp-button--primary" to="/receipt">
+              查看验收回执
               <ArrowUpRight aria-hidden="true" size={16} />
             </Link>
           </div>

@@ -1,8 +1,8 @@
 import { CircleCheck, CircleDashed, TriangleAlert } from "lucide-react";
-import type { AcceptanceStatus } from "../../types/workspace";
 import "./StatusBadge.css";
 
-export type { AcceptanceStatus };
+/** 验收状态只有三种；不引入"通过但告警"这类模糊态。 */
+export type AcceptanceStatus = "passed" | "failed" | "unverified";
 
 const statusMeta: Record<
   AcceptanceStatus,

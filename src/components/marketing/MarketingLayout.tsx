@@ -21,7 +21,7 @@ export function MarketingLayout() {
           </div>
           <div className="site-footer__meta">
             <span>Front-end portfolio prototype</span>
-            <span>All workspace data is simulated.</span>
+            <span>Receipts shown here are real verification records.</span>
             <span className="mono">© 2026 ProofPatch</span>
           </div>
         </div>

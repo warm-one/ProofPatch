@@ -1,0 +1,187 @@
+{
+  "schema": "proofpatch.receipt/v1",
+  "receiptId": "pp-20261028-0618-c21c30",
+  "createdAt": "2026-10-28T06:18:05.080Z",
+  "verdict": "rejected",
+  "reason": {
+    "code": "REGRESSION_NEW_FAILURE",
+    "message": "候选打坏了回归范围内的其他测试",
+    "detail": "候选在回归范围内引入 1 个新增失败：tests/test_cart.py::test_most_expensive_returns_highest_priced_sku"
+  },
+  "claim": {
+    "oracleId": "auto-test-most-expensive-on-empty-cart-returns-none",
+    "statement": "候选补丁修复「基线测试 test_most_expensive_on_empty_cart_returns_none 由失败转为通过」",
+    "scope": "single-target-test",
+    "isolationModel": "independent-clones"
+  },
+  "subject": {
+    "repo": {
+      "label": "fixture-repo",
+      "headCommit": "c96221cddcf4c83eca9d00ee9913688533ecec8d"
+    },
+    "baseCommit": "c96221cddcf4c83eca9d00ee9913688533ecec8d",
+    "patch": {
+      "digest": "sha256:ead58045f116627f555f60ce1b89e72d371ee83d17ae715d857a261009f4cde8",
+      "declaredPaths": [
+        "src/cartlogic/cart.py"
+      ]
+    },
+    "patchedTree": "git-tree:0f17efc385647fa7992b804354808f7945718470"
+  },
+  "oracle": {
+    "id": "auto-test-most-expensive-on-empty-cart-returns-none",
+    "digest": "sha256:e682fe988006c1efb5cce78b8534a416a202e1d1e1ceea1e445b5686beccbd64",
+    "owner": "auto-discovered",
+    "frozenAt": "2026-10-28T06:17:45.049Z",
+    "statement": "基线测试 test_most_expensive_on_empty_cart_returns_none 由失败转为通过",
+    "protectedPaths": [
+      "tests/test_cart.py"
+    ],
+    "targets": [
+      {
+        "testId": "tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none",
+        "expect": "fail",
+        "strength": "L1",
+        "asserted": [
+          "基线失败现象：ValueError: max() iterable argument is empty"
+        ],
+        "notAsserted": [
+          "该断言是否覆盖根因而非仅覆盖症状",
+          "测试之外的行为变化"
+        ]
+      }
+    ]
+  },
+  "environment": {
+    "fingerprint": "sha256:1084bbecd83c1e46559ea5d498ef8aee266fb0c6bcc1966661b3b9a07a0e5a29",
+    "python": {
+      "executable": "D:/ana/python.exe",
+      "version": "3.14.6"
+    },
+    "pytest": "9.0.3",
+    "platform": "win32-x64",
+    "node": "v22.22.2",
+    "isolation": {
+      "level": "process",
+      "backend": "tempdir-clone",
+      "limitations": [
+        "候选代码与宿主共用操作系统用户身份",
+        "未创建独立虚拟环境，依赖来自宿主已安装的 Python 包",
+        "未做网络命名空间隔离，测试仍可访问网络",
+        "未做系统调用过滤，恶意代码可读取宿主可读文件",
+        "未限制 CPU 与内存总量，只限制单次执行时长"
+      ]
+    },
+    "dependencies": {
+      "digest": "sha256:8a44b865f2c378413e9b9cda11990febb0067589366785149539f5cd546c3b79",
+      "files": [
+        "pyproject.toml"
+      ]
+    },
+    "sampling": {
+      "repeats": 3,
+      "timeoutMs": 120000
+    }
+  },
+  "trials": [
+    {
+      "phase": "baseline",
+      "repeat": 1,
+      "testId": "tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none",
+      "outcome": "fail",
+      "exitCode": 1,
+      "durationMs": 1397,
+      "summaryLine": "1 failed in 0.09s",
+      "outputDigest": "sha256:75a317c0f5a0afd92e415781314c383a8025e48ff153b0e1d38cb26d56e378aa",
+      "outputTail": "F                                                                        [100%]\r\n================================== FAILURES ===================================\r\nE   ValueError: max() iterable argument is empty\r\nC:\\Users\\warm\\AppData\\Local\\Temp\\proofpatch-baseline-0CwwpE\\work\\src\\cartlogic\\cart.py:54: ValueError: max() iterable argument is empty\r\n=========================== short test summary info ===========================\r\nFAILED tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none - ValueError: max() iterable argument is empty\r\n1 failed in 0.09s\r\n"
+    },
+    {
+      "phase": "baseline",
+      "repeat": 2,
+      "testId": "tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none",
+      "outcome": "fail",
+      "exitCode": 1,
+      "durationMs": 1286,
+      "summaryLine": "1 failed in 0.01s",
+      "outputDigest": "sha256:063e1fc852f41e328c658aa79ea18926d6d2047c1a9e87cb3a5b64ab5d69bcf6",
+      "outputTail": "F                                                                        [100%]\r\n================================== FAILURES ===================================\r\nE   ValueError: max() iterable argument is empty\r\nC:\\Users\\warm\\AppData\\Local\\Temp\\proofpatch-baseline-0CwwpE\\work\\src\\cartlogic\\cart.py:54: ValueError: max() iterable argument is empty\r\n=========================== short test summary info ===========================\r\nFAILED tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none - ValueError: max() iterable argument is empty\r\n1 failed in 0.01s\r\n"
+    },
+    {
+      "phase": "baseline",
+      "repeat": 3,
+      "testId": "tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none",
+      "outcome": "fail",
+      "exitCode": 1,
+      "durationMs": 1019,
+      "summaryLine": "1 failed in 0.01s",
+      "outputDigest": "sha256:063e1fc852f41e328c658aa79ea18926d6d2047c1a9e87cb3a5b64ab5d69bcf6",
+      "outputTail": "F                                                                        [100%]\r\n================================== FAILURES ===================================\r\nE   ValueError: max() iterable argument is empty\r\nC:\\Users\\warm\\AppData\\Local\\Temp\\proofpatch-baseline-0CwwpE\\work\\src\\cartlogic\\cart.py:54: ValueError: max() iterable argument is empty\r\n=========================== short test summary info ===========================\r\nFAILED tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none - ValueError: max() iterable argument is empty\r\n1 failed in 0.01s\r\n"
+    },
+    {
+      "phase": "candidate",
+      "repeat": 1,
+      "testId": "tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none",
+      "outcome": "pass",
+      "exitCode": 0,
+      "durationMs": 1559,
+      "summaryLine": "1 passed in 0.02s",
+      "outputDigest": "sha256:1522ee6acc841f68d4e2de11068e29ffb90f52c410ef5dd8697890b792af9d46",
+      "outputTail": ".                                                                        [100%]\r\n1 passed in 0.02s\r\n"
+    },
+    {
+      "phase": "candidate",
+      "repeat": 2,
+      "testId": "tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none",
+      "outcome": "pass",
+      "exitCode": 0,
+      "durationMs": 1291,
+      "summaryLine": "1 passed in 0.01s",
+      "outputDigest": "sha256:67a785682d36684fac18a5d24de36b38ad3852b9f22c33c36f235ecaf7a3c226",
+      "outputTail": ".                                                                        [100%]\r\n1 passed in 0.01s\r\n"
+    },
+    {
+      "phase": "candidate",
+      "repeat": 3,
+      "testId": "tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none",
+      "outcome": "pass",
+      "exitCode": 0,
+      "durationMs": 1138,
+      "summaryLine": "1 passed in 0.01s",
+      "outputDigest": "sha256:67a785682d36684fac18a5d24de36b38ad3852b9f22c33c36f235ecaf7a3c226",
+      "outputTail": ".                                                                        [100%]\r\n1 passed in 0.01s\r\n"
+    }
+  ],
+  "regression": {
+    "scope": [
+      "tests/test_cart.py"
+    ],
+    "status": "new-failures",
+    "newFailures": [
+      "tests/test_cart.py::test_most_expensive_returns_highest_priced_sku"
+    ],
+    "preExistingErrors": [],
+    "baselineFailed": [
+      "tests/test_cart.py::test_most_expensive_on_empty_cart_returns_none"
+    ],
+    "candidateFailed": [
+      "tests/test_cart.py::test_most_expensive_returns_highest_priced_sku"
+    ]
+  },
+  "unproven": [
+    "验收契约由基线失败自动推导（强度 L1）：断言是否覆盖根因、而非仅覆盖症状，未经人工复核。",
+    "Oracle 强度 L1 至少不崩溃：只保证目标异常不再出现；返回值是否正确，取决于测试本身的断言范围。",
+    "目标测试未断言的行为：该断言是否覆盖根因而非仅覆盖症状；测试之外的行为变化",
+    "回归仅覆盖 tests/test_cart.py，未运行项目全量测试套件。",
+    "基线每个阶段重复 3 次；低频不稳定（低于 33.3% 量级）仍可能未被发现。",
+    "执行隔离为进程级：候选代码以宿主用户身份运行，仍可访问网络与宿主可读文件，不构成安全沙箱。",
+    "未按依赖清单重建环境：验证使用的是宿主已安装的依赖，与项目锁文件可能不一致。",
+    "回执仅包含内容哈希，未包含签名身份；可验证未被篡改，但不能证明由谁生成。"
+  ],
+  "attestation": {
+    "kind": "local-integrity-only",
+    "algorithm": "sha256",
+    "digest": "sha256:2f7781425528898146c9b7b7e825fdf0ce49e8a4ec1167efcd2fa23c9dfb580a",
+    "covers": "除 attestation 字段外的全部内容",
+    "doesNotProve": "未提供签名身份，因此不构成对生成者的不可否认证明；接收方需自行确认回执来源。"
+  }
+}

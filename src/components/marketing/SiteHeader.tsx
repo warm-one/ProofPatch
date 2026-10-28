@@ -1,7 +1,6 @@
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { useWorkspace } from "../../state/WorkspaceContext";
+import { Link, useLocation } from "react-router-dom";
 import { BrandMark } from "../ui/BrandMark";
 import "./SiteHeader.css";
 
@@ -14,9 +13,9 @@ const navigation = [
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { state, serverStatus } = useWorkspace();
-  const isLive = state.mode === "live";
-  const workspaceLabel = isLive ? "打开真实工作区" : "进入工作台";
+  const { pathname } = useLocation();
+  // 首页点导航只滚动；其他页面（如回执查看器）需要带前缀跳回首页锚点。
+  const sectionHref = (hash: string) => (pathname === "/" ? hash : `/${hash}`);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -42,21 +41,16 @@ export function SiteHeader() {
 
         <nav aria-label="主导航" className="site-header__nav">
           {navigation.map((item) => (
-            <a key={item.href} href={item.href}>
+            <a key={item.href} href={sectionHref(item.href)}>
               {item.label}
             </a>
           ))}
         </nav>
 
         <div className="site-header__actions">
-          {serverStatus === "available" && (
-            <Link className="site-header__local" to="/connect">
-              连接本地项目
-            </Link>
-          )}
-          <span className="site-header__demo">Interactive demo</span>
-          <Link className="pp-button pp-button--secondary" to="/workspace">
-            {workspaceLabel}
+          <span className="site-header__demo">Receipt viewer</span>
+          <Link className="pp-button pp-button--secondary" to="/receipt">
+            查看验收回执
             <ArrowUpRight aria-hidden="true" size={15} strokeWidth={1.8} />
           </Link>
         </div>
@@ -86,7 +80,7 @@ export function SiteHeader() {
           {navigation.map((item) => (
             <a
               key={item.href}
-              href={item.href}
+              href={sectionHref(item.href)}
               onClick={() => setMenuOpen(false)}
             >
               {item.label}
@@ -96,25 +90,12 @@ export function SiteHeader() {
           <Link
             className="pp-button pp-button--primary"
             onClick={() => setMenuOpen(false)}
-            to="/workspace"
+            to="/receipt"
           >
-            {workspaceLabel}
+            查看验收回执
             <ArrowUpRight aria-hidden="true" size={16} />
           </Link>
-          {serverStatus === "available" && (
-            <Link
-              className="site-header__mobile-local"
-              onClick={() => setMenuOpen(false)}
-              to="/connect"
-            >
-              连接本地项目
-            </Link>
-          )}
-          <p>
-            {isLive
-              ? "本地真实数据 · 命令在本机执行"
-              : "预置数据 · 不连接仓库 · 不执行真实测试"}
-          </p>
+          <p>回执来自真实验证 · 哈希可在浏览器内重算</p>
         </nav>
       )}
     </header>

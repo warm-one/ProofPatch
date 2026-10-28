@@ -155,9 +155,15 @@ server/verifier/             判定内核
   sandbox.mjs                一次性克隆、补丁应用、树哈希
   pytestRunner.mjs           执行与结果四态分类
   index.mjs                  编排：拦截 → 双克隆 → 基线 N 次 → 候选 N 次 → 回归
+  replay.mjs                 读回执 + 同一补丁，独立重跑并比对结论
+src/                         官网与回执查看器（纯静态，无后端）
 fixtures/python-bugfix/      含一个真实缺陷的夹具项目
 scripts/acceptance-matrix.mjs 对抗补丁验收矩阵
 docs/audit-2026-10-28.md     一次完整的正确性审查记录
 ```
+
+Web 端只有一个执行无关的页面：`/receipt`。拖入一份 `receipt.json`，它会把四步验证、
+契约、执行记录、未证明边界摊开，并**在你的浏览器里重算内容哈希**——不经过任何服务器。
+
 
 测试：`npm test`（59 项）。验收矩阵：`npm run acceptance -- --python <python.exe>`。

@@ -6,7 +6,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useWorkspace } from "../../state/WorkspaceContext";
 import { DemoLabel } from "../ui/DemoLabel";
 import { StatusBadge, type AcceptanceStatus } from "../ui/StatusBadge";
 import "./HeroEvidenceChain.css";
@@ -59,8 +58,6 @@ const heroChecks: HeroCheck[] = [
  */
 export function HeroEvidenceChain() {
   const [activeId, setActiveId] = useState("AC-04");
-  const { state, serverStatus } = useWorkspace();
-  const isLive = state.mode === "live";
   const activeCheck =
     heroChecks.find((check) => check.id === activeId) ?? heroChecks[2];
 
@@ -85,8 +82,8 @@ export function HeroEvidenceChain() {
         </p>
 
         <div className="hero__actions">
-          <Link className="pp-button pp-button--primary" to="/workspace">
-            {isLive ? "打开真实工作区" : "打开交互演示"}
+          <Link className="pp-button pp-button--primary" to="/receipt">
+            看一份真实回执
             <ArrowRight aria-hidden="true" size={16} />
           </Link>
           <a className="pp-button pp-button--secondary" href="#evidence">
@@ -95,16 +92,8 @@ export function HeroEvidenceChain() {
         </div>
 
         <p className="hero__disclaimer mono">
-          {isLive
-            ? "已连接本地真实数据 · 命令在本机执行"
-            : "预置数据 · 不连接仓库 · 不执行真实测试"}
+          回执来自一次真实的本地验证 · 哈希可在你的浏览器里重算
         </p>
-        {serverStatus === "available" && !isLive && (
-          <Link className="hero__local-link" to="/connect">
-            连接自己的本地项目，运行真实检查
-            <ArrowRight aria-hidden="true" size={13} />
-          </Link>
-        )}
       </div>
 
       <div className="hero__artifact">
