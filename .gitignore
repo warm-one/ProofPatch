@@ -21,3 +21,6 @@ Thumbs.db
 __pycache__/
 .pytest_cache/
 *.pyc
+
+# 工具自身的回执目录（proofpatch check 的默认输出）
+.proofpatch/
