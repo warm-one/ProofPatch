@@ -345,4 +345,12 @@ describe("回执自校验", () => {
     expect(result.valid).toBe(false);
     expect(result.problems.some((p) => p.includes("应导致"))).toBe(true);
   });
+
+  it("缺少必填字段时校验失败", () => {
+    const broken = { ...receipt };
+    delete broken.environment;
+    const result = verifyReceipt(broken);
+    expect(result.valid).toBe(false);
+    expect(result.problems.some((p) => p.includes("缺少必填字段 environment"))).toBe(true);
+  });
 });

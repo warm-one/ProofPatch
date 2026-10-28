@@ -278,6 +278,10 @@ export function buildUnprovenList({
     );
   }
 
+  items.push(
+    "未按依赖清单重建环境：验证使用的是宿主已安装的依赖，与项目锁文件可能不一致。",
+  );
+
   if (!hasSignature) {
     items.push(
       "回执仅包含内容哈希，未包含签名身份；可验证未被篡改，但不能证明由谁生成。",

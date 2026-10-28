@@ -4,21 +4,23 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { UserFacingError } from "../errors.mjs";
+import { sha256Hex } from "./digest.mjs";
 
 const execFileAsync = promisify(execFile);
 
 /**
  * 一次性隔离工作区。
  *
- * 隔离等级刻意保持诚实：这一版是"进程级 + 独立工作树 + 独立虚拟环境"，
- * 不是安全沙箱。不可信代码仍以宿主用户身份运行，也能读到宿主可读的文件。
- * 因此回执里必须把它写成 limitations，而不是含糊地说"已隔离"。
+ * 隔离等级刻意保持诚实：这一版是"进程级 + 独立工作树"，
+ * 既不是安全沙箱，也没有独立虚拟环境——依赖来自宿主 Python。
+ * 这两件事都必须写进 limitations，不能靠名字暗示"已经隔离好了"。
  */
 export const ISOLATION_PROFILE = {
   level: "process",
-  backend: "tempdir-clone-venv",
+  backend: "tempdir-clone",
   limitations: [
     "候选代码与宿主共用操作系统用户身份",
+    "未创建独立虚拟环境，依赖来自宿主已安装的 Python 包",
     "未做网络命名空间隔离，测试仍可访问网络",
     "未做系统调用过滤，恶意代码可读取宿主可读文件",
     "未限制 CPU 与内存总量，只限制单次执行时长",
@@ -180,4 +182,52 @@ export async function resolveCommit(repoPath, ref) {
     throw new UserFacingError(`无法把 ${ref} 解析为 commit。`);
   }
   return output;
+}
+
+/**
+ * 会被 pytest / pip 读取的依赖声明文件（仅仓库根目录）。
+ * 用来给"环境指纹"补上被测项目的依赖身份：
+ * 只有 python/pytest 版本的指纹，无法解释两台机器为何得出不同结论。
+ */
+const DEPENDENCY_FILES = new Set([
+  "pyproject.toml",
+  "setup.py",
+  "setup.cfg",
+  "requirements.txt",
+  "requirements-dev.txt",
+  "poetry.lock",
+  "Pipfile.lock",
+  "uv.lock",
+  "pdm.lock",
+]);
+
+export async function computeDependencyDigest(repoPath, commit) {
+  let listing;
+  try {
+    listing = await runGit(["ls-tree", "--name-only", commit], repoPath);
+  } catch {
+    return { digest: null, files: [] };
+  }
+
+  const files = listing
+    .split(/\r?\n/)
+    .map((entry) => entry.trim())
+    .filter((entry) => DEPENDENCY_FILES.has(entry));
+
+  if (files.length === 0) return { digest: null, files: [] };
+
+  const parts = [];
+  for (const file of files) {
+    try {
+      const content = await runGit(["show", `${commit}:${file}`], repoPath);
+      parts.push(`${file}\n${content}`);
+    } catch {
+      parts.push(`${file}\n<unreadable>`);
+    }
+  }
+
+  return {
+    digest: `sha256:${sha256Hex(parts.join("\n---\n"))}`,
+    files,
+  };
 }

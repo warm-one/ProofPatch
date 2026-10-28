@@ -128,6 +128,14 @@ export function verifyReceipt(receipt) {
     problems.push(`schema 不匹配：期望 ${RECEIPT_SCHEMA}。`);
   }
 
+  // 用导出的 schema 里的 required 清单做结构校验，
+  // 避免出现"schema 写着必填、校验器却不查"的分歧。
+  for (const key of RECEIPT_JSON_SCHEMA.required) {
+    if (receipt[key] === undefined || receipt[key] === null) {
+      problems.push(`缺少必填字段 ${key}。`);
+    }
+  }
+
   const verdictValues = new Set(Object.values(VERDICT));
   if (!verdictValues.has(receipt.verdict)) {
     problems.push(`verdict 取值非法：${String(receipt.verdict)}。`);
@@ -231,7 +239,12 @@ export const RECEIPT_JSON_SCHEMA = {
             declaredPaths: { type: "array", items: { type: "string" } },
           },
         },
-        patchedTree: { type: "string", pattern: "^git-tree:[0-9a-f]{40,64}$" },
+        patchedTree: {
+          type: "string",
+          // 控制面短路时没有应用补丁，也就没有树哈希；
+          // 这个哨兵值是合法结论，但必须显式可见，不能伪装成一个真实哈希。
+          pattern: "^git-tree:(not-computed|[0-9a-f]{40,64})$",
+        },
       },
     },
     oracle: {
@@ -276,6 +289,13 @@ export const RECEIPT_JSON_SCHEMA = {
         pytest: { type: "string" },
         platform: { type: "string" },
         node: { type: "string" },
+        dependencies: {
+          type: "object",
+          properties: {
+            digest: { type: ["string", "null"] },
+            files: { type: "array", items: { type: "string" } },
+          },
+        },
         isolation: {
           type: "object",
           required: ["level", "backend", "limitations"],

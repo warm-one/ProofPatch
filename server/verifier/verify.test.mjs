@@ -80,6 +80,15 @@ describe.skipIf(!TEST_PYTHON)("端到端证明流程", () => {
 
       expect(receipt.subject.patchedTree).toMatch(/^git-tree:[0-9a-f]{40,64}$/);
       expect(receipt.environment.isolation.level).toBe("process");
+      // 隔离声明必须与实际实现一致：本版没有独立虚拟环境，就不能这么写。
+      expect(receipt.environment.isolation.backend).toBe("tempdir-clone");
+      expect(receipt.environment.isolation.limitations.join(" ")).toContain(
+        "未创建独立虚拟环境",
+      );
+      // 环境指纹必须包含被测项目的依赖身份，否则同指纹不同环境无法解释。
+      expect(receipt.environment.dependencies.files).toContain("pyproject.toml");
+      expect(receipt.environment.dependencies.digest).toMatch(/^sha256:[0-9a-f]{64}$/);
+      expect(receipt.unproven.join(" ")).toContain("未按依赖清单重建环境");
       expect(receipt.unproven.length).toBeGreaterThan(0);
     },
     180_000,
@@ -134,6 +143,9 @@ describe.skipIf(!TEST_PYTHON)("端到端证明流程", () => {
       const { receipt } = await verify("cheat-conftest");
       expect(receipt.reason.code).toBe("CONTROL_PLANE_TAMPERED");
       expect(receipt.trials.every((t) => t.outcome === "skipped")).toBe(true);
+      // 短路回执没有树哈希，用的是显式哨兵值；它仍然必须能通过自校验。
+      expect(receipt.subject.patchedTree).toBe("git-tree:not-computed");
+      expect(verifyReceipt(receipt).valid).toBe(true);
     },
     180_000,
   );

@@ -6,6 +6,7 @@ import { loadOracle, detectOracleTampering } from "./oracle.mjs";
 import {
   ISOLATION_PROFILE,
   applyPatch,
+  computeDependencyDigest,
   computeTreeDigest,
   createWorkspace,
   disposeWorkspace,
@@ -68,7 +69,7 @@ export function detectControlPlaneChanges(changedPaths) {
   return { tampered: hits.length > 0, paths: hits };
 }
 
-function buildEnvironment({ pythonInfo, repeats, timeoutMs }) {
+function buildEnvironment({ pythonInfo, repeats, timeoutMs, dependencyInfo }) {
   const platform = `${process.platform}-${process.arch}`;
   return {
     fingerprint: digestOf({
@@ -77,6 +78,8 @@ function buildEnvironment({ pythonInfo, repeats, timeoutMs }) {
       platform,
       node: process.version,
       isolation: ISOLATION_PROFILE.backend,
+      // 依赖也是环境的一部分：只有解释器版本不足以解释结论差异。
+      dependencies: dependencyInfo?.digest ?? "none",
     }),
     python: {
       executable: pythonInfo.executable,
@@ -86,6 +89,7 @@ function buildEnvironment({ pythonInfo, repeats, timeoutMs }) {
     platform,
     node: process.version,
     isolation: isolationDescriptor(),
+    dependencies: dependencyInfo ?? { digest: null, files: [] },
     sampling: { repeats, timeoutMs },
   };
 }
@@ -124,6 +128,8 @@ export async function verifyPatch({
   repeats = 3,
   python,
   timeoutMs = 120_000,
+  // 调用方若已解析过基线（check 流程），直接传进来，避免解析两次导致基线漂移。
+  commit,
 }) {
   if (!Number.isInteger(repeats) || repeats < 1 || repeats > 9) {
     throw new UserFacingError("repeats 必须是 1 到 9 之间的整数。");
@@ -134,7 +140,7 @@ export async function verifyPatch({
     ? providedOracle
     : await loadOracle(oraclePath);
   const { oracle, digest: oracleDigest, protectedPaths } = resolvedOracle;
-  const baseCommit = await resolveCommit(repoPath, baseRef);
+  const baseCommit = commit ?? (await resolveCommit(repoPath, baseRef));
 
   let patchText;
   try {
@@ -154,7 +160,13 @@ export async function verifyPatch({
   const controlPlane = detectControlPlaneChanges(declaredPaths);
 
   const pythonInfo = await resolvePython(python);
-  const environment = buildEnvironment({ pythonInfo, repeats, timeoutMs });
+  const dependencyInfo = await computeDependencyDigest(repoPath, baseCommit);
+  const environment = buildEnvironment({
+    pythonInfo,
+    repeats,
+    timeoutMs,
+    dependencyInfo,
+  });
 
   const repoLabel = path.basename(path.resolve(repoPath));
   const headCommit = await resolveCommit(repoPath, "HEAD");

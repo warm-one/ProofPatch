@@ -163,6 +163,7 @@ export async function runCheck({
     const result = await verifyPatch({
       repoPath,
       baseRef,
+      commit: baseCommit,
       patchPath: patchInfo.patchPath,
       oracle: built,
       repeats,
