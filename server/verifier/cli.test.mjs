@@ -104,4 +104,11 @@ describe("CLI 退出码契约", () => {
     expect(code).toBe(64);
     expect(stderr).toContain("--patch");
   });
+
+  it("非交互环境缺少 --yes 时拒绝冻结契约", () => {
+    // spawnSync 的 stdin 不是 TTY：这正是 CI 里容易"静默同意"的场景。
+    const { code, stderr } = runCli(["check"]);
+    expect(code).toBe(64);
+    expect(stderr).toContain("--yes");
+  });
 });

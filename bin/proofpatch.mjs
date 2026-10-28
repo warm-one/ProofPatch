@@ -244,6 +244,16 @@ async function commandCheck(flags) {
   }
 
   const quiet = Boolean(flags.json);
+  // 契约冻结是一个需要人点头的动作。管道 / CI 里没有 TTY 时，
+  // 默认"自动同意"等于没人看过这份契约就签字，宁可报错。
+  if (!flags.yes && !process.stdin.isTTY) {
+    throw new UserFacingError(
+      "当前是非交互环境，请显式加 --yes 表示你接受自动推导的验收契约。",
+      400,
+      "CONFIRM_REQUIRED",
+    );
+  }
+
   const say = (...args) => {
     if (!quiet) console.log(...args);
   };
@@ -260,7 +270,7 @@ async function commandCheck(flags) {
     repeats,
     python: typeof flags.python === "string" ? flags.python : undefined,
     timeoutMs: Math.round(timeoutSeconds * 1000),
-    assumeYes: Boolean(flags.yes) || quiet,
+    assumeYes: Boolean(flags.yes),
     confirm: async () => {
       say("");
       return askConfirm("  把这个失败作为验收契约？[Y/n] ");

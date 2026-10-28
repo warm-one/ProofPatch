@@ -296,6 +296,7 @@ export const RECEIPT_JSON_SCHEMA = {
         properties: {
           phase: { enum: ["baseline", "candidate"] },
           repeat: { type: "integer", minimum: 0 },
+          testId: { type: "string" },
           outcome: {
             enum: ["pass", "fail", "error", "missing", "timeout", "skipped"],
           },

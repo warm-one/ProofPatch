@@ -17,6 +17,23 @@ function summarizeTrials(trials) {
   return counts;
 }
 
+/**
+ * 按目标测试分组。
+ *
+ * 多目标契约下，"A 恒通过、B 恒失败"与"同一个测试时好时坏"是两种完全不同的诊断，
+ * 聚合计数会把前者误报成后者，因此必须逐目标判定。
+ * 没有 testId 的记录（旧回执、占位 trial）归入同一组，保持单目标行为不变。
+ */
+function groupByTarget(trials) {
+  const groups = new Map();
+  for (const trial of trials) {
+    const key = trial.testId ?? "__all__";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(trial);
+  }
+  return groups;
+}
+
 function reason(code, detail) {
   const meta = describeReasonSafe(code);
   return { verdict: meta.verdict, code, message: meta.title, detail };
@@ -100,38 +117,43 @@ export function decideVerdict({
     return reason("PATCH_APPLY_FAILED", "补丁无法应用到基线工作树。");
   }
 
-  const baseline = summarizeTrials(baselineTrials);
   const totalBaseline = baselineTrials.length;
 
   if (totalBaseline === 0) {
     return reason("BASELINE_ERROR", "基线阶段没有任何执行记录。");
   }
 
-  // 基线出现 error / missing / timeout，说明"失败"不是目标失败。
-  if (baseline.error > 0 || baseline.missing > 0 || baseline.timeout > 0) {
-    return reason(
-      "BASELINE_ERROR",
-      `基线执行出现 ${baseline.missing} 次测试不存在、${baseline.error} 次错误、${baseline.timeout} 次超时；这些都不构成"目标失败"。`,
-    );
+  // 逐目标判定基线：只要有一个目标不是"稳定失败"，这个契约就不成立。
+  for (const [testId, trials] of groupByTarget(baselineTrials)) {
+    const counts = summarizeTrials(trials);
+    const total = trials.length;
+
+    // error / missing / timeout 说明"失败"不是目标失败。
+    if (counts.error > 0 || counts.missing > 0 || counts.timeout > 0) {
+      return reason(
+        "BASELINE_ERROR",
+        `${testId} 出现 ${counts.missing} 次未收集到结果、${counts.error} 次执行错误、${counts.timeout} 次超时；这些都不构成"目标失败"。`,
+      );
+    }
+
+    // 基线通过 = 这个 bug 根本不存在，或 Oracle 指错了地方。
+    if (counts.pass === total) {
+      return reason(
+        "BASELINE_NOT_FAILING",
+        `${testId} 在基线 ${total} 次执行中全部通过。`,
+      );
+    }
+
+    // 基线时好时坏 = Oracle 本身不稳定，任何后续结论都不可信。
+    if (counts.pass > 0) {
+      return reason(
+        "BASELINE_UNSTABLE",
+        `${testId} 在基线 ${total} 次执行中 ${counts.pass} 次通过、${counts.fail} 次失败，该测试本身不稳定。`,
+      );
+    }
   }
 
-  // 基线通过 = 这个 bug 根本不存在，或 Oracle 指错了地方。
-  if (baseline.pass === totalBaseline) {
-    return reason(
-      "BASELINE_NOT_FAILING",
-      `该测试在基线 ${totalBaseline} 次执行中全部通过。`,
-    );
-  }
-
-  // 基线时好时坏 = Oracle 本身不稳定，任何后续结论都不可信。
-  if (baseline.pass > 0) {
-    return reason(
-      "BASELINE_UNSTABLE",
-      `基线 ${totalBaseline} 次执行中 ${baseline.pass} 次通过、${baseline.fail} 次失败，该测试本身不稳定。`,
-    );
-  }
-
-  // 到这里基线是"稳定失败"，责任边界转移到候选。
+  // 到这里每个目标都是"稳定失败"，责任边界转移到候选。
   const candidate = summarizeTrials(candidateTrials);
   const totalCandidate = candidateTrials.length;
 
@@ -139,7 +161,11 @@ export function decideVerdict({
     return reason("CANDIDATE_STILL_FAILING", "候选阶段没有任何执行记录。");
   }
 
-  if (candidate.pass === totalCandidate) {
+  const failingTargets = [...groupByTarget(candidateTrials)].filter(
+    ([, trials]) => summarizeTrials(trials).pass !== trials.length,
+  );
+
+  if (failingTargets.length === 0) {
     const newFailures = computeNewFailures(baselineRegression, candidateRegression);
     const newErrors = computeNewErrors(baselineRegression, candidateRegression);
     // status 为 error 但一个错误节点都没解析出来：回归实际上没跑起来，
@@ -175,10 +201,15 @@ export function decideVerdict({
     );
   }
 
-  if (candidate.pass > 0) {
+  const unstableTarget = failingTargets.find(
+    ([, trials]) => summarizeTrials(trials).pass > 0,
+  );
+  if (unstableTarget) {
+    const [testId, trials] = unstableTarget;
+    const counts = summarizeTrials(trials);
     return reason(
       "CANDIDATE_UNSTABLE",
-      `基线已证明该失败稳定存在，但候选 ${totalCandidate} 次中只有 ${candidate.pass} 次通过。`,
+      `${testId} 在候选 ${trials.length} 次中只有 ${counts.pass} 次通过；基线已证明该失败稳定存在。`,
     );
   }
 

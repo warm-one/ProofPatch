@@ -38,21 +38,33 @@ import {
  * 测试控制面文件。
  * 改这些文件等于改"测试如何被解释"，而不是改被测代码，
  * 因此一律视为绕过验证，而不是普通代码变更。
+ *
+ * 但"拦得宽"和"拦得准"是两件事：
+ * - conftest / sitecustomize 会被 Python 或 pytest 从各级目录加载，任何位置都要拦；
+ * - pytest.ini / tox.ini / pyproject.toml / setup.cfg 只有仓库根目录那份才生效，
+ *   monorepo 子包与文档示例里的同名文件与测试无关，拦了就是误杀诚实补丁。
  */
-const CONTROL_PLANE_PATTERNS = [
+const CONTROL_PLANE_ANYWHERE = [
   /(^|\/)conftest\.py$/,
   /(^|\/)sitecustomize\.py$/,
   /(^|\/)usercustomize\.py$/,
-  /(^|\/)pytest\.ini$/,
-  /(^|\/)tox\.ini$/,
-  /(^|\/)pyproject\.toml$/,
-  /(^|\/)setup\.cfg$/,
 ];
 
-function detectControlPlaneChanges(changedPaths) {
+const CONTROL_PLANE_ROOT_ONLY = [
+  /^pytest\.ini$/,
+  /^tox\.ini$/,
+  /^pyproject\.toml$/,
+  /^setup\.cfg$/,
+];
+
+export function detectControlPlaneChanges(changedPaths) {
   const hits = changedPaths
     .map((entry) => entry.replaceAll("\\", "/"))
-    .filter((entry) => CONTROL_PLANE_PATTERNS.some((pattern) => pattern.test(entry)));
+    .filter(
+      (entry) =>
+        CONTROL_PLANE_ANYWHERE.some((pattern) => pattern.test(entry)) ||
+        CONTROL_PLANE_ROOT_ONLY.some((pattern) => pattern.test(entry)),
+    );
   return { tampered: hits.length > 0, paths: hits };
 }
 
@@ -271,7 +283,12 @@ export async function verifyPatch({
             testId: target.testId,
             timeoutMs,
           });
-          baselineTrials.push({ phase: "baseline", repeat: index + 1, ...result });
+          baselineTrials.push({
+            phase: "baseline",
+            repeat: index + 1,
+            testId: target.testId,
+            ...result,
+          });
         }
       }
 
@@ -291,7 +308,12 @@ export async function verifyPatch({
             testId: target.testId,
             timeoutMs,
           });
-          candidateTrials.push({ phase: "candidate", repeat: index + 1, ...result });
+          candidateTrials.push({
+            phase: "candidate",
+            repeat: index + 1,
+            testId: target.testId,
+            ...result,
+          });
         }
       }
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { decideVerdict, computeNewFailures } from "./verdict.mjs";
 import { canonicalize, digestOf } from "./digest.mjs";
 import { normalizeOracle } from "./oracle.mjs";
+import { detectControlPlaneChanges } from "./index.mjs";
 import { attestReceipt, verifyReceipt, RECEIPT_SCHEMA } from "./receipt.mjs";
 
 function trial(outcome, phase = "baseline", repeat = 1) {
@@ -172,6 +173,44 @@ describe("decideVerdict 责任边界", () => {
     });
     expect(result.code).toBe("CANDIDATE_STILL_FAILING");
     expect(result.detail).toContain("未收集到结果 3");
+  });
+
+  it("多目标时，一个恒过、一个恒败不能被判成不稳定", () => {
+    const withTarget = (phase, outcome, testId, repeat) => ({
+      phase,
+      repeat,
+      testId,
+      outcome,
+      exitCode: outcome === "pass" ? 0 : 1,
+      durationMs: 1,
+    });
+
+    const result = decide({
+      baselineTrials: [
+        withTarget("baseline", "pass", "tests/a.py::test_a", 1),
+        withTarget("baseline", "pass", "tests/a.py::test_a", 2),
+        withTarget("baseline", "fail", "tests/b.py::test_b", 1),
+        withTarget("baseline", "fail", "tests/b.py::test_b", 2),
+      ],
+    });
+
+    expect(result.code).toBe("BASELINE_NOT_FAILING");
+    expect(result.detail).toContain("tests/a.py::test_a");
+  });
+});
+
+describe("控制面文件判定", () => {
+  it("子包与文档示例里的同名配置不算测试控制面", () => {
+    expect(detectControlPlaneChanges(["packages/web/pyproject.toml"]).tampered).toBe(false);
+    expect(detectControlPlaneChanges(["docs/examples/setup.cfg"]).tampered).toBe(false);
+    expect(detectControlPlaneChanges(["services/api/tox.ini"]).tampered).toBe(false);
+  });
+
+  it("根目录配置与任意位置的 conftest 仍然拦截", () => {
+    expect(detectControlPlaneChanges(["pyproject.toml"]).tampered).toBe(true);
+    expect(detectControlPlaneChanges(["setup.cfg"]).tampered).toBe(true);
+    expect(detectControlPlaneChanges(["tests/conftest.py"]).tampered).toBe(true);
+    expect(detectControlPlaneChanges(["sitecustomize.py"]).tampered).toBe(true);
   });
 });
 
