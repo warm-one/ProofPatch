@@ -41,6 +41,7 @@ check 选项：
   --repeats <次数>     每个阶段的重复次数，1-9，默认 3
   --python <可执行文件> 指定解释器，需已安装 pytest
   --timeout <秒>       单次执行超时，默认 120
+  --strict            严格模式：证据覆盖不足时不给证明结论
   --yes               跳过契约确认（CI 用）
   --out <文件>         回执输出路径，默认 ./proofpatch-receipt.json
   --json              仅输出回执 JSON
@@ -278,6 +279,7 @@ async function commandCheck(flags) {
     repeats,
     python: typeof flags.python === "string" ? flags.python : undefined,
     timeoutMs: Math.round(timeoutSeconds * 1000),
+    strict: Boolean(flags.strict),
     assumeYes: Boolean(flags.yes),
     confirm: async () => {
       say("");
@@ -341,6 +343,11 @@ async function commandCheck(flags) {
 
   say("");
   for (const line of renderCheckSteps(receipt)) say(line);
+
+  if (receipt.reason.code === "STRICT_COVERAGE_INSUFFICIENT") {
+    say("");
+    say(yellow("  严格模式：四步都通过，但证据覆盖不足，因此不给出证明结论。"));
+  }
 
   say("");
   say(`  结论  ${MARK[receipt.verdict]} ${bold(VERDICT_LABEL[receipt.verdict])}`);

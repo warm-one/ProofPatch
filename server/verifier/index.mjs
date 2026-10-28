@@ -16,12 +16,14 @@ import {
   resolveCommit,
 } from "./sandbox.mjs";
 import {
+  collectTests,
   normalizeNodeId,
   resolvePython,
   runRegression,
   runTargetTest,
 } from "./pytestRunner.mjs";
 import {
+  assessCoverageGaps,
   buildUnprovenList,
   computeNewErrors,
   computeNewFailures,
@@ -128,6 +130,8 @@ export async function verifyPatch({
   repeats = 3,
   python,
   timeoutMs = 120_000,
+  // 严格模式：PROVEN 之前先检查证据覆盖，覆盖不足就降级为 inconclusive。
+  strict = false,
   // 调用方若已解析过基线（check 流程），直接传进来，避免解析两次导致基线漂移。
   commit,
 }) {
@@ -245,6 +249,8 @@ export async function verifyPatch({
   let patchApplied = false;
   let patchError = null;
   let changedPaths = declaredPaths;
+  // 严格模式下用来判断回归是否覆盖了全部测试文件。
+  let allTestFiles = [];
   // 文本层拦不住的改动（例如纯重命名）靠这里兜底：以 git apply 之后的真实树为准。
   let treeTampering = null;
 
@@ -335,6 +341,18 @@ export async function verifyPatch({
         scope: oracle.regression.scope,
         timeoutMs,
       });
+
+      if (strict) {
+        // 收集项目里全部测试文件，用来判断回归范围是否只覆盖了一小块。
+        const collected = await collectTests({
+          pythonExecutable: pythonInfo.executable,
+          cwd: baselineWorkspace.treePath,
+          timeoutMs,
+        });
+        allTestFiles = [
+          ...new Set(collected.nodeIds.map((id) => id.split("::")[0])),
+        ];
+      }
     }
   } finally {
     await disposeWorkspace(baselineWorkspace);
@@ -351,6 +369,26 @@ export async function verifyPatch({
     tampering: effectiveTampering,
     patchApplied,
   });
+
+  // 严格模式只在"本来要判 PROVEN"时介入：
+  // 拒绝本身已经是负面结论，无需再加保守。
+  let finalDecision = decision;
+  let coverageGaps = [];
+  if (strict && decision.verdict === "proven") {
+    coverageGaps = assessCoverageGaps({
+      oracle,
+      regressionScope: oracle.regression.scope,
+      allTestFiles,
+    });
+    if (coverageGaps.length > 0) {
+      finalDecision = {
+        verdict: "inconclusive",
+        code: "STRICT_COVERAGE_INSUFFICIENT",
+        message: REASON_CODES.STRICT_COVERAGE_INSUFFICIENT.title,
+        detail: coverageGaps.join("；"),
+      };
+    }
+  }
 
   const newFailures = computeNewFailures(baselineRegression, candidateRegression);
   const newErrors = computeNewErrors(baselineRegression, candidateRegression);
@@ -391,13 +429,22 @@ export async function verifyPatch({
   if (decision.code === "BASELINE_NOT_FAILING") {
     unproven.unshift("基线目标测试本来就通过，本次没有可证明的修复。");
   }
+  if (coverageGaps.length > 0) {
+    unproven.unshift(
+      ...coverageGaps.map((gap) => `严格模式下判定为证据不足：${gap}`),
+    );
+  }
 
   const receipt = attestReceipt({
     schema: "proofpatch.receipt/v1",
     receiptId: createReceiptId(),
     createdAt: new Date().toISOString(),
-    verdict: decision.verdict,
-    reason: { code: decision.code, message: decision.message, detail: decision.detail },
+    verdict: finalDecision.verdict,
+    reason: {
+      code: finalDecision.code,
+      message: finalDecision.message,
+      detail: finalDecision.detail,
+    },
     claim: {
       oracleId: oracle.id,
       statement: `候选补丁修复「${oracle.statement}」`,
@@ -443,6 +490,7 @@ export async function verifyPatch({
     receipt,
     validation: verifyReceipt(receipt),
     exitCode: VERDICT_EXIT_CODE[receipt.verdict],
-    reasonTitle: REASON_CODES[decision.code]?.title ?? decision.message,
+    reasonTitle: REASON_CODES[finalDecision.code]?.title ?? finalDecision.message,
+    coverageGaps,
   };
 }

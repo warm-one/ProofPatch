@@ -73,6 +73,10 @@ export const REASON_CODES = {
     verdict: "inconclusive",
     title: "回归范围无法正常执行，无法判断是否引入新问题",
   },
+  STRICT_COVERAGE_INSUFFICIENT: {
+    verdict: "inconclusive",
+    title: "严格模式下证据覆盖不足，不给出证明结论",
+  },
 };
 
 export function describeReason(code) {

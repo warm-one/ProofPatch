@@ -222,6 +222,49 @@ export function decideVerdict({
 }
 
 /**
+ * 评估"证据覆盖"是否足以支撑一个 PROVEN 结论。
+ *
+ * 严格模式下用它决定要不要降级。这里刻意只统计**本次可以改善**的缺口：
+ * 隔离等级、依赖重建、签名这些结构性限制永远存在，纳入就会让 strict 永远无法通过，
+ * 那就失去了区分意义。
+ */
+const STRENGTH_RANK = { L0: 0, L1: 1, L2: 2, L3: 3 };
+
+export function assessCoverageGaps({ oracle, regressionScope, allTestFiles }) {
+  const gaps = [];
+
+  if (oracle.inferred) {
+    gaps.push("验收契约由基线失败自动推导，断言强度未经人工复核");
+  }
+
+  const weakest = oracle.targets.reduce(
+    (min, target) => Math.min(min, STRENGTH_RANK[target.strength] ?? 0),
+    3,
+  );
+  if (weakest < 3) {
+    const labels = [...new Set(oracle.targets.map((t) => t.strength))].join("/");
+    gaps.push(`Oracle 强度为 ${labels}，未达 L3（属性与边界）`);
+  }
+
+  const notAsserted = oracle.targets.flatMap((target) => target.notAsserted ?? []);
+  if (notAsserted.length > 0) {
+    gaps.push(`目标测试有 ${notAsserted.length} 项未断言的行为`);
+  }
+
+  if (allTestFiles && allTestFiles.length > 0) {
+    const covered = new Set(regressionScope);
+    const uncovered = allTestFiles.filter((file) => !covered.has(file));
+    if (uncovered.length > 0) {
+      gaps.push(
+        `回归未覆盖 ${uncovered.length} 个测试文件：${uncovered.slice(0, 3).join("、")}${uncovered.length > 3 ? " 等" : ""}`,
+      );
+    }
+  }
+
+  return gaps;
+}
+
+/**
  * 生成"未证明边界"。
  * 这一段不是免责声明，而是结构化地告诉接收方：
  * 这份回执在什么范围内成立，超出哪里就不成立。

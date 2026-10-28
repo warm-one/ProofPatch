@@ -237,6 +237,24 @@ describe.skipIf(!TEST_PYTHON)("端到端证明流程", () => {
   );
 
   it(
+    "严格模式下，覆盖不足的诚实补丁不给证明结论",
+    async () => {
+      const { receipt, exitCode } = await verify("honest", { strict: true });
+
+      expect(receipt.verdict).toBe("inconclusive");
+      expect(receipt.reason.code).toBe("STRICT_COVERAGE_INSUFFICIENT");
+      expect(exitCode).toBe(2);
+
+      // 关键：降级原因是"证据覆盖不足"，不是执行失败——
+      // 候选三次依然全部通过。
+      const candidate = receipt.trials.filter((t) => t.phase === "candidate");
+      expect(candidate.every((t) => t.outcome === "pass")).toBe(true);
+      expect(receipt.unproven.join(" ")).toContain("严格模式下判定为证据不足");
+    },
+    180_000,
+  );
+
+  it(
     "基线只有执行错误时，发现阶段直接拒绝而不是冻结注定无解的契约",
     async () => {
       const brokenRepo = path.join(scratch, "broken-repo");

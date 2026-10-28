@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { decideVerdict, computeNewFailures } from "./verdict.mjs";
+import {
+  assessCoverageGaps,
+  computeNewFailures,
+  decideVerdict,
+} from "./verdict.mjs";
 import { canonicalize, digestOf } from "./digest.mjs";
 import { normalizeOracle } from "./oracle.mjs";
 import { detectControlPlaneChanges } from "./index.mjs";
@@ -196,6 +200,31 @@ describe("decideVerdict 责任边界", () => {
 
     expect(result.code).toBe("BASELINE_NOT_FAILING");
     expect(result.detail).toContain("tests/a.py::test_a");
+  });
+});
+
+describe("严格模式的覆盖评估", () => {
+  it("自动推导、强度不足、回归范围过窄都算缺口", () => {
+    const gaps = assessCoverageGaps({
+      oracle: { inferred: true, targets: [{ strength: "L1", notAsserted: ["某行为"] }] },
+      regressionScope: ["tests/a.py"],
+      allTestFiles: ["tests/a.py", "tests/b.py"],
+    });
+
+    expect(gaps.length).toBeGreaterThanOrEqual(4);
+    expect(gaps.join(" ")).toContain("自动推导");
+    expect(gaps.join(" ")).toContain("未达 L3");
+    expect(gaps.join(" ")).toContain("回归未覆盖 1 个测试文件");
+  });
+
+  it("手写 L3 且回归覆盖全部文件时没有缺口", () => {
+    const gaps = assessCoverageGaps({
+      oracle: { inferred: false, targets: [{ strength: "L3", notAsserted: [] }] },
+      regressionScope: ["tests/a.py", "tests/b.py"],
+      allTestFiles: ["tests/a.py", "tests/b.py"],
+    });
+
+    expect(gaps).toEqual([]);
   });
 });
 

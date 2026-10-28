@@ -30,6 +30,7 @@ export async function runCheck({
   python,
   timeoutMs = 120_000,
   assumeYes = false,
+  strict = false,
   confirm,
   report = () => {},
 }) {
@@ -169,6 +170,7 @@ export async function runCheck({
       repeats,
       python: pythonInfo.executable,
       timeoutMs,
+      strict,
     });
 
     return {
