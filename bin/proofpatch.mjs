@@ -6,6 +6,7 @@ import { createInterface } from "node:readline/promises";
 import { UserFacingError } from "../server/errors.mjs";
 import { runCheck } from "../server/verifier/check.mjs";
 import { verifyPatch } from "../server/verifier/index.mjs";
+import { replayReceipt } from "../server/verifier/replay.mjs";
 import {
   formatReceiptSummary,
   verifyReceipt,
@@ -23,7 +24,14 @@ const HELP = `ProofPatch — 独立执行证据层
 命令：
   proofpatch check          零配置验证当前项目的工作区改动
   proofpatch verify         使用已有契约文件验证指定补丁
+  proofpatch replay         拿到别人的回执，自己重跑一遍比对结论
   proofpatch verify-receipt 离线校验一份回执是否被篡改
+
+replay 选项：
+  --repo <目录>        回执对应的仓库（必填）
+  --patch <文件>       当初那一份补丁（必填，摘要必须与回执一致）
+  --python <可执行文件> 指定解释器
+  --json              输出对比结果 JSON
 
 check 选项：
   --repo <目录>        被测项目，默认当前目录
@@ -413,8 +421,88 @@ async function commandVerify(flags) {
   return exitCode;
 }
 
+async function commandReplay(positional, flags) {
+  const receiptPath = positional[0];
+  if (!receiptPath) {
+    throw new UserFacingError(
+      "用法：proofpatch replay <receipt.json> --repo <目录> --patch <补丁>",
+    );
+  }
+  const repoPath = typeof flags.repo === "string" ? flags.repo : null;
+  const patchPath = typeof flags.patch === "string" ? flags.patch : null;
+  if (!repoPath) {
+    throw new UserFacingError("缺少 --repo：请指定这份回执对应的仓库目录。");
+  }
+  if (!patchPath) {
+    throw new UserFacingError("缺少 --patch：请提供当初那一份补丁。");
+  }
+
+  const result = await replayReceipt({
+    receiptPath,
+    repoPath,
+    patchPath,
+    python: typeof flags.python === "string" ? flags.python : undefined,
+  });
+
+  if (flags.json) {
+    console.log(
+      JSON.stringify(
+        {
+          receiptId: result.original.receiptId,
+          consistent: result.consistent,
+          environmentChanged: result.environmentChanged,
+          differences: result.differences,
+          original: {
+            verdict: result.original.verdict,
+            reason: result.original.reason?.code,
+          },
+          replayed: {
+            verdict: result.replayed.verdict,
+            reason: result.replayed.reason?.code,
+          },
+        },
+        null,
+        2,
+      ),
+    );
+    return result.exitCode;
+  }
+
+  console.log("");
+  console.log(bold(`重放 ${result.original.receiptId}`));
+  console.log("");
+  console.log(`  回执完整性   ${green("✓ 未被篡改")}`);
+  console.log(
+    `  补丁一致     ${green(`✓ ${String(result.original.subject?.patch?.digest ?? "").slice(0, 20)}…`)}`,
+  );
+  console.log(
+    `  环境         ${
+      result.environmentChanged
+        ? yellow("⚠ 指纹不同，结论可能无法复现")
+        : green("✓ 指纹相同")
+    }`,
+  );
+  console.log("");
+  console.log(
+    `  原结论    ${String(result.original.verdict).toUpperCase()}  ${dim(String(result.original.reason?.code))}`,
+  );
+  console.log(
+    `  重放结论  ${String(result.replayed.verdict).toUpperCase()}  ${dim(String(result.replayed.reason?.code))}`,
+  );
+  console.log("");
+  if (result.consistent) {
+    console.log(`  结果  ${green("✓ 一致")}`);
+  } else {
+    console.log(`  结果  ${red("✗ 不一致")}`);
+    for (const line of result.differences) console.log(dim(`    - ${line}`));
+  }
+  console.log("");
+  return result.exitCode;
+}
+
 async function commandVerifyReceipt(positional) {
   const target = positional[0];
+
   if (!target) {
     throw new UserFacingError("请提供回执文件路径。");
   }
@@ -452,6 +540,7 @@ async function main() {
 
   if (command === "check") return commandCheck(flags);
   if (command === "verify") return commandVerify(flags);
+  if (command === "replay") return commandReplay(positional, flags);
   if (command === "verify-receipt") return commandVerifyReceipt(positional);
 
   console.log(HELP);

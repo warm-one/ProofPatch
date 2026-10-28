@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { runCheck } from "./check.mjs";
 import { verifyPatch } from "./index.mjs";
+import { replayReceipt } from "./replay.mjs";
 import { verifyReceipt } from "./receipt.mjs";
 import { TEST_PYTHON } from "./testPython.mjs";
 
@@ -189,6 +190,48 @@ describe.skipIf(!TEST_PYTHON)("端到端证明流程", () => {
       };
       const result = verifyReceipt(tampered);
       expect(result.valid).toBe(false);
+    },
+    180_000,
+  );
+
+  it(
+    "回执可以被独立重放，且重放结论与原回执一致",
+    async () => {
+      const { receipt } = await verify("honest");
+      const receiptPath = path.join(scratch, "replay-receipt.json");
+      await writeFile(receiptPath, JSON.stringify(receipt, null, 2), "utf8");
+
+      const result = await replayReceipt({
+        receiptPath,
+        repoPath: repoDir,
+        patchPath: path.join(PATCHES, "honest.diff"),
+        python: TEST_PYTHON.executable,
+        timeoutMs: 60_000,
+      });
+
+      expect(result.consistent).toBe(true);
+      expect(result.differences).toEqual([]);
+      expect(result.replayed.verdict).toBe(receipt.verdict);
+      expect(result.replayed.subject.patchedTree).toBe(receipt.subject.patchedTree);
+    },
+    180_000,
+  );
+
+  it(
+    "拿另一份补丁重放会被拒绝",
+    async () => {
+      const { receipt } = await verify("honest");
+      const receiptPath = path.join(scratch, "replay-mismatch.json");
+      await writeFile(receiptPath, JSON.stringify(receipt, null, 2), "utf8");
+
+      await expect(
+        replayReceipt({
+          receiptPath,
+          repoPath: repoDir,
+          patchPath: path.join(PATCHES, "cheat-noop.diff"),
+          python: TEST_PYTHON.executable,
+        }),
+      ).rejects.toThrow(/不是同一份/);
     },
     180_000,
   );
