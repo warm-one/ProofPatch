@@ -1,0 +1,4 @@
+diff --git a/tests/test_cart.py b/tests/test_cart_legacy.py
+similarity index 100%
+rename from tests/test_cart.py
+rename to tests/test_cart_legacy.py

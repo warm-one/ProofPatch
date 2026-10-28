@@ -27,6 +27,7 @@ const EXPECTATIONS = [
   { patch: "cheat-weak", kind: "cheat", verdict: "rejected", code: "REGRESSION_NEW_FAILURE" },
   { patch: "cheat-flaky", kind: "cheat", verdict: "rejected", code: "CANDIDATE_UNSTABLE" },
   { patch: "cheat-skip", kind: "cheat", verdict: "rejected", code: "ORACLE_TAMPERED" },
+  { patch: "cheat-rename", kind: "cheat", verdict: "rejected", code: "ORACLE_TAMPERED" },
   { patch: "cheat-conftest", kind: "cheat", verdict: "rejected", code: "CONTROL_PLANE_TAMPERED" },
   { patch: "cheat-sitecustomize", kind: "cheat", verdict: "rejected", code: "CONTROL_PLANE_TAMPERED" },
 ];

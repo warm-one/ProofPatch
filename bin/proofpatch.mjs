@@ -191,6 +191,15 @@ function renderCheckSteps(receipt) {
     lines.push(
       stepLine(OK, "回归检查", `${regression.scope.join("、")} 无新增失败`),
     );
+  } else if (regression.status === "pre-existing-errors") {
+    const count = (regression.preExistingErrors ?? []).length;
+    lines.push(
+      stepLine(
+        yellow("⚠"),
+        "回归检查",
+        `${regression.scope.join("、")} 无新增失败；基线已有 ${count} 项执行错误未变化`,
+      ),
+    );
   } else if (regression.status === "new-failures") {
     const sample = regression.newFailures.slice(0, 2).join("、");
     const more =

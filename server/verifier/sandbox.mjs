@@ -159,10 +159,16 @@ export async function computeTreeDigest(workspace) {
   return `git-tree:${tree}`;
 }
 
-/** 列出相对基线 commit 的实际改动路径（以已暂存内容为准）。 */
+/**
+ * 列出相对基线 commit 的实际改动路径（以已暂存内容为准）。
+ *
+ * 必须关掉重命名检测：git 默认会把"删除 + 新增"折叠成一条 rename 记录，
+ * 此时 --name-only 只输出目标路径，被挪走的原路径会消失——
+ * 而"原路径恰好是受保护测试文件"正是要抓的情况。
+ */
 export async function listChangedPaths(workspace, baseCommit) {
   const output = await runGit(
-    ["diff", "--cached", "--name-only", baseCommit],
+    ["diff", "--cached", "--name-only", "--no-renames", baseCommit],
     workspace.treePath,
   );
   return output ? output.split(/\r?\n/).filter(Boolean) : [];

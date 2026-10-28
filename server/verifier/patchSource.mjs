@@ -84,7 +84,9 @@ export async function preparePatchFromWorktree({ repoPath, baseRef = "HEAD" }) {
   try {
     const result = await execFileAsync(
       "git",
-      ["-c", "core.autocrlf=false", "diff", baseRef, "--binary", "--"],
+      // --no-renames：纯重命名在 diff 里没有 ---/+++ 行，会让路径检查看不见。
+      // 展开成"删除+新增"后，受保护路径必然出现在补丁文本中。
+      ["-c", "core.autocrlf=false", "diff", "--no-renames", baseRef, "--binary", "--"],
       { cwd: repoPath, encoding: "utf8", windowsHide: true, maxBuffer: 32 * 1024 * 1024 },
     );
     diff = result.stdout;

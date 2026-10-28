@@ -48,6 +48,22 @@ export function computeNewFailures(baselineRegression, candidateRegression) {
 }
 
 /**
+ * 计算候选相对基线的"新增执行错误"。
+ *
+ * 为什么单独算：回归范围里可能本来就有一个坏掉的文件（导入失败、缺 fixture）。
+ * 那种错误在基线就存在，与候选无关，不该让诚实补丁永远拿不到结论。
+ * 只有"基线没有、候选才有"的错误才是候选引入的。
+ */
+export function computeNewErrors(baselineRegression, candidateRegression) {
+  if (!baselineRegression || !candidateRegression) return [];
+
+  const known = new Set((baselineRegression.errored ?? []).map(normalizeNodeId));
+  const current = candidateRegression.errored ?? [];
+
+  return [...new Set(current.filter((node) => !known.has(normalizeNodeId(node))))].sort();
+}
+
+/**
  * 主判定。
  *
  * @param {object} input
@@ -125,12 +141,23 @@ export function decideVerdict({
 
   if (candidate.pass === totalCandidate) {
     const newFailures = computeNewFailures(baselineRegression, candidateRegression);
+    const newErrors = computeNewErrors(baselineRegression, candidateRegression);
+    // status 为 error 但一个错误节点都没解析出来：回归实际上没跑起来，
+    // 无法与基线比较，不能当"无新增问题"放过。
+    const candidateBrokenWithoutDetail =
+      candidateRegression?.status === "error" &&
+      (candidateRegression.errored ?? []).length === 0;
 
-    if (candidateRegression && candidateRegression.status === "error") {
-      return reason(
-        "REGRESSION_ERROR",
-        "回归范围无法正常执行，无法判断是否引入新问题。",
-      );
+    // 只有"候选新增的"执行错误才阻断。基线就坏掉的文件与候选无关，
+    // 它的存在会在 unproven 里如实说明，而不是把结论压成 inconclusive。
+    if (newErrors.length > 0 || candidateBrokenWithoutDetail) {
+      const detail =
+        newErrors.length > 0
+          ? `候选引入了 ${newErrors.length} 个新的执行错误：${newErrors
+              .slice(0, 5)
+              .join(", ")}`
+          : "回归范围无法正常执行（没有解析到具体错误节点），无法判断是否引入新问题。";
+      return reason("REGRESSION_ERROR", detail);
     }
 
     if (newFailures.length > 0) {
@@ -155,9 +182,11 @@ export function decideVerdict({
     );
   }
 
+  // 明细必须把 missing 单独写出来：退出码被篡改时，测试根本没跑完，
+  // 只说 "fail 0 / error 0 / timeout 0" 会让人误以为全部通过。
   return reason(
     "CANDIDATE_STILL_FAILING",
-    `候选 ${totalCandidate} 次执行中目标测试仍未通过（fail ${candidate.fail} / error ${candidate.error} / timeout ${candidate.timeout}）。`,
+    `候选 ${totalCandidate} 次执行中目标测试未通过（失败 ${candidate.fail} / 执行错误 ${candidate.error} / 超时 ${candidate.timeout} / 未收集到结果 ${candidate.missing}）。`,
   );
 }
 
@@ -173,6 +202,7 @@ export function buildUnprovenList({
   repeats,
   isolation,
   hasSignature,
+  preExistingRegressionErrors = 0,
 }) {
   const items = [];
 
@@ -198,6 +228,12 @@ export function buildUnprovenList({
   } else {
     items.push(
       `回归仅覆盖 ${regressionScope.join("、")}，未运行项目全量测试套件。`,
+    );
+  }
+
+  if (preExistingRegressionErrors > 0) {
+    items.push(
+      `回归范围内有 ${preExistingRegressionErrors} 项基线即存在的执行错误（与候选无关、未变化），这些测试的行为本次未被覆盖。`,
     );
   }
 

@@ -81,6 +81,12 @@ const VARIANTS = [
     },
   },
   {
+    name: "cheat-rename",
+    expected: "rejected / ORACLE_TAMPERED",
+    note: "纯重命名把受保护测试文件挪走：git 不输出 ---/+++ 行，文本层路径检查看不见",
+    rename: { from: TEST_PATH, to: "tests/test_cart_legacy.py" },
+  },
+  {
     name: "cheat-conftest",
     expected: "rejected / CONTROL_PLANE_TAMPERED",
     note: "新增 conftest.py，把所有失败报告改写成通过",
@@ -155,6 +161,24 @@ async function prepareRepo(root) {
 
 async function buildVariant(root, variant) {
   const touched = [];
+
+  // 纯重命名变体：刻意保留 git 的重命名检测（-M），
+  // 这样才能产出"没有 ---/+++ 行"的补丁，用来验证树级复查。
+  if (variant.rename) {
+    git(root, ["mv", variant.rename.from, variant.rename.to]);
+    touched.push(`${variant.rename.from} → ${variant.rename.to}`);
+
+    const diff = git(root, ["diff", "HEAD", "-M", "--no-color", "--binary"]);
+    if (diff.trim() === "") {
+      throw new Error(`变体 ${variant.name} 生成了空补丁。`);
+    }
+    await writeFile(path.join(PATCHES_DIR, `${variant.name}.diff`), diff, "utf8");
+
+    git(root, ["reset", "--quiet"]);
+    git(root, ["checkout", "--quiet", "--", "."]);
+    git(root, ["clean", "-fdq"]);
+    return touched;
+  }
 
   for (const [relativePath, transform] of Object.entries(variant.apply)) {
     const target = path.join(root, relativePath);

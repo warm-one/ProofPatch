@@ -85,9 +85,35 @@ export async function runCheck({
 
   // --- 2. 选定目标并推导契约 ---
   const explicit = Boolean(testId);
+  const failKind = suite.failures.filter((failure) => failure.kind === "fail");
+
+  // 只有"执行错误"（缺 fixture、导入失败、setup 报错）而没有真正的断言失败时，
+  // 用其中一条当契约必然走向 BASELINE_ERROR。与其让用户跑完一整轮再被告知
+  // "无法判定"，不如在这里明确拒绝：这不是可验证的 bug。
+  if (!explicit && failKind.length === 0) {
+    const sample = suite.failures
+      .slice(0, 5)
+      .map((failure) => `  ${failure.nodeId}${failure.message ? `\n    ${failure.message}` : ""}`)
+      .join("\n");
+    throw new UserFacingError(
+      [
+        "基线里只有执行错误，没有断言失败。",
+        "",
+        "这些测试连准备阶段都没通过（缺 fixture、导入失败或 setup 报错），",
+        "它们不能作为「这个 bug 被修复了」的证据。",
+        "",
+        sample,
+        "",
+        "先修好测试环境（依赖、路径、fixture），或用 --test 指定一个确实失败的测试。",
+      ].join("\n"),
+      400,
+      "ONLY_COLLECTION_ERRORS",
+    );
+  }
+
   const chosen = explicit
     ? { nodeId: testId, kind: "fail", message: "" }
-    : suite.failures.find((failure) => failure.kind === "fail") ?? suite.failures[0];
+    : failKind[0];
 
   const additionalFailures = suite.failures.filter(
     (failure) => failure.nodeId !== chosen.nodeId,

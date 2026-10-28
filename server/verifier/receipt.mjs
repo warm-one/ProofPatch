@@ -312,8 +312,13 @@ export const RECEIPT_JSON_SCHEMA = {
       required: ["status"],
       properties: {
         scope: { type: "array", items: { type: "string" } },
-        status: { enum: ["clean", "new-failures", "not-run", "error"] },
+        status: {
+          enum: ["clean", "new-failures", "pre-existing-errors", "not-run", "error"],
+        },
         newFailures: { type: "array", items: { type: "string" } },
+        preExistingErrors: { type: "array", items: { type: "string" } },
+        baselineFailed: { type: "array", items: { type: "string" } },
+        candidateFailed: { type: "array", items: { type: "string" } },
       },
     },
     unproven: { type: "array", items: { type: "string" } },

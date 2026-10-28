@@ -138,6 +138,41 @@ describe("decideVerdict 责任边界", () => {
     expect(result.code).toBe("REGRESSION_ERROR");
     expect(result.verdict).toBe("inconclusive");
   });
+
+  it("回归范围里基线已有的执行错误，不阻断诚实补丁", () => {
+    const shared = ["tests/test_broken.py::test_needs_missing_fixture"];
+    const result = decide({
+      baselineRegression: { status: "error", failed: [], errored: shared },
+      candidateRegression: { status: "error", failed: [], errored: shared },
+    });
+    expect(result.code).toBe("PROVEN_FAIL_TO_PASS");
+  });
+
+  it("候选新增的执行错误仍然阻断", () => {
+    const result = decide({
+      baselineRegression: { status: "error", failed: [], errored: ["tests/a.py::test_old"] },
+      candidateRegression: {
+        status: "error",
+        failed: [],
+        errored: ["tests/a.py::test_old", "tests/b.py::test_new"],
+      },
+    });
+    expect(result.code).toBe("REGRESSION_ERROR");
+    expect(result.verdict).toBe("inconclusive");
+  });
+
+  it("候选全部未收集到结果时，明细必须写出该计数", () => {
+    // 对应退出码被篡改的场景：结论正确，但明细不能看起来像"全过了"。
+    const result = decide({
+      candidateTrials: [
+        trial("missing", "candidate", 1),
+        trial("missing", "candidate", 2),
+        trial("missing", "candidate", 3),
+      ],
+    });
+    expect(result.code).toBe("CANDIDATE_STILL_FAILING");
+    expect(result.detail).toContain("未收集到结果 3");
+  });
 });
 
 describe("computeNewFailures", () => {

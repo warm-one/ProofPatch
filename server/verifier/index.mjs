@@ -14,8 +14,18 @@ import {
   listChangedPaths,
   resolveCommit,
 } from "./sandbox.mjs";
-import { resolvePython, runRegression, runTargetTest } from "./pytestRunner.mjs";
-import { buildUnprovenList, computeNewFailures, decideVerdict } from "./verdict.mjs";
+import {
+  normalizeNodeId,
+  resolvePython,
+  runRegression,
+  runTargetTest,
+} from "./pytestRunner.mjs";
+import {
+  buildUnprovenList,
+  computeNewErrors,
+  computeNewFailures,
+  decideVerdict,
+} from "./verdict.mjs";
 import {
   attestReceipt,
   createReceiptId,
@@ -211,29 +221,11 @@ export async function verifyPatch({
   let patchApplied = false;
   let patchError = null;
   let changedPaths = declaredPaths;
+  // 文本层拦不住的改动（例如纯重命名）靠这里兜底：以 git apply 之后的真实树为准。
+  let treeTampering = null;
 
   try {
-    // --- 基线：同一 Oracle 契约下的失败复现 ---
-    for (let index = 0; index < repeats; index += 1) {
-      for (const target of oracle.targets) {
-        const result = await runTargetTest({
-          pythonExecutable: pythonInfo.executable,
-          cwd: baselineWorkspace.treePath,
-          testId: target.testId,
-          timeoutMs,
-        });
-        baselineTrials.push({ phase: "baseline", repeat: index + 1, ...result });
-      }
-    }
-
-    baselineRegression = await runRegression({
-      pythonExecutable: pythonInfo.executable,
-      cwd: baselineWorkspace.treePath,
-      scope: oracle.regression.scope,
-      timeoutMs,
-    });
-
-    // --- 候选：独立克隆 + 应用补丁 ---
+    // --- 候选先行：先应用补丁，再决定这一次是否值得执行任何测试 ---
     try {
       await applyPatch(candidateWorkspace, patchPath);
       patchedTree = await computeTreeDigest(candidateWorkspace);
@@ -244,7 +236,53 @@ export async function verifyPatch({
       patchError = error instanceof Error ? error.message : "补丁应用失败";
     }
 
+    // 树级复查：git apply 写出的路径才是事实。
+    // 纯重命名补丁没有 ---/+++ 行，文本解析看到的是空数组，只有这一层能抓住。
     if (patchApplied) {
+      const treeOracle = detectOracleTampering(changedPaths, protectedPaths);
+      const treeControl = detectControlPlaneChanges(changedPaths);
+      if (treeOracle.tampered || treeControl.tampered) {
+        treeTampering = {
+          oracle: {
+            tampered: treeOracle.tampered,
+            paths: [...new Set([...oracleTampering.paths, ...treeOracle.paths])],
+          },
+          controlPlane: {
+            tampered: treeControl.tampered,
+            paths: [...new Set([...controlPlane.paths, ...treeControl.paths])],
+          },
+        };
+      }
+    }
+
+    if (!patchApplied) {
+      baselineTrials.push(skippedTrial("baseline", "补丁无法应用，未执行任何测试"));
+    } else if (treeTampering) {
+      baselineTrials.push(
+        skippedTrial("baseline", "补丁在应用后的树检查中被拒绝，未执行任何测试"),
+      );
+    } else {
+      // --- 基线：同一 Oracle 契约下的失败复现 ---
+      for (let index = 0; index < repeats; index += 1) {
+        for (const target of oracle.targets) {
+          const result = await runTargetTest({
+            pythonExecutable: pythonInfo.executable,
+            cwd: baselineWorkspace.treePath,
+            testId: target.testId,
+            timeoutMs,
+          });
+          baselineTrials.push({ phase: "baseline", repeat: index + 1, ...result });
+        }
+      }
+
+      baselineRegression = await runRegression({
+        pythonExecutable: pythonInfo.executable,
+        cwd: baselineWorkspace.treePath,
+        scope: oracle.regression.scope,
+        timeoutMs,
+      });
+
+      // --- 候选执行 ---
       for (let index = 0; index < repeats; index += 1) {
         for (const target of oracle.targets) {
           const result = await runTargetTest({
@@ -269,21 +307,31 @@ export async function verifyPatch({
     await disposeWorkspace(candidateWorkspace);
   }
 
+  const effectiveTampering = treeTampering ?? { oracle: oracleTampering, controlPlane };
+
   const decision = decideVerdict({
     baselineTrials,
     candidateTrials,
     baselineRegression,
     candidateRegression,
-    tampering: { oracle: oracleTampering, controlPlane },
+    tampering: effectiveTampering,
     patchApplied,
   });
 
   const newFailures = computeNewFailures(baselineRegression, candidateRegression);
+  const newErrors = computeNewErrors(baselineRegression, candidateRegression);
+  const baselineErrored = new Set(
+    (baselineRegression?.errored ?? []).map(normalizeNodeId),
+  );
+  const preExistingErrors = (candidateRegression?.errored ?? []).filter((node) =>
+    baselineErrored.has(normalizeNodeId(node)),
+  );
 
   const regressionStatus = (() => {
-    if (!patchApplied) return "not-run";
+    if (!patchApplied || treeTampering) return "not-run";
     if (oracle.regression.scope.length === 0) return "not-run";
-    if (candidateRegression?.status === "error") return "error";
+    if (newErrors.length > 0) return "error";
+    if (preExistingErrors.length > 0) return "pre-existing-errors";
     if (newFailures.length > 0) return "new-failures";
     return "clean";
   })();
@@ -295,10 +343,16 @@ export async function verifyPatch({
     repeats,
     isolation: environment.isolation,
     hasSignature: false,
+    preExistingRegressionErrors: preExistingErrors.length,
   });
 
   if (!patchApplied) {
     unproven.unshift(`补丁未能应用：${patchError ?? "未知原因"}`);
+  }
+  if (treeTampering) {
+    unproven.unshift(
+      "补丁在应用后的树检查中被发现修改了受保护测试文件或测试控制面，未执行任何测试。",
+    );
   }
   if (decision.code === "BASELINE_NOT_FAILING") {
     unproven.unshift("基线目标测试本来就通过，本次没有可证明的修复。");
@@ -343,6 +397,7 @@ export async function verifyPatch({
       scope: oracle.regression.scope,
       status: regressionStatus,
       newFailures,
+      preExistingErrors,
       baselineFailed: baselineRegression?.failed ?? [],
       candidateFailed: candidateRegression?.failed ?? [],
     },

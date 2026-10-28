@@ -1,9 +1,10 @@
 import { execFileSync } from "node:child_process";
-import { cp, mkdtemp, rm } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { runCheck } from "./check.mjs";
 import { verifyPatch } from "./index.mjs";
 import { verifyReceipt } from "./receipt.mjs";
 import { TEST_PYTHON } from "./testPython.mjs";
@@ -138,6 +139,23 @@ describe.skipIf(!TEST_PYTHON)("端到端证明流程", () => {
   );
 
   it(
+    "纯重命名挪走受保护测试文件，在应用后按真实树拦下",
+    async () => {
+      // 这类补丁没有 ---/+++ 行，文本层路径检查看到的是空数组，
+      // 只有"以 git apply 之后的真实树为准"这一层能抓住。
+      const { receipt } = await verify("cheat-rename");
+
+      expect(receipt.verdict).toBe("rejected");
+      expect(receipt.reason.code).toBe("ORACLE_TAMPERED");
+      // 一个进程都不该启动：候选阶段没有任何 trial。
+      expect(receipt.trials.filter((t) => t.phase === "candidate")).toHaveLength(0);
+      // 回执里要能看到真实改动路径（被挪走的原路径）。
+      expect(receipt.subject.patch.declaredPaths).toContain("tests/test_cart.py");
+    },
+    180_000,
+  );
+
+  it(
     "验证过程不修改被测仓库",
     async () => {
       const before = git(["status", "--porcelain"], repoDir);
@@ -159,6 +177,35 @@ describe.skipIf(!TEST_PYTHON)("端到端证明流程", () => {
       };
       const result = verifyReceipt(tampered);
       expect(result.valid).toBe(false);
+    },
+    180_000,
+  );
+
+  it(
+    "基线只有执行错误时，发现阶段直接拒绝而不是冻结注定无解的契约",
+    async () => {
+      const brokenRepo = path.join(scratch, "broken-repo");
+      await mkdir(path.join(brokenRepo, "tests"), { recursive: true });
+      await writeFile(
+        path.join(brokenRepo, "tests", "test_broken.py"),
+        "def test_needs_missing_fixture(missing_fixture):\n    assert True\n",
+        "utf8",
+      );
+      git(["init", "--quiet", "-b", "main"], brokenRepo);
+      git(["config", "user.name", "ProofPatch Test"], brokenRepo);
+      git(["config", "user.email", "test@proofpatch.local"], brokenRepo);
+      git(["add", "-A"], brokenRepo);
+      git(["commit", "--quiet", "-m", "broken"], brokenRepo);
+
+      await expect(
+        runCheck({
+          repoPath: brokenRepo,
+          repeats: 1,
+          python: TEST_PYTHON.executable,
+          assumeYes: true,
+          timeoutMs: 60_000,
+        }),
+      ).rejects.toThrow(/只有执行错误/);
     },
     180_000,
   );
