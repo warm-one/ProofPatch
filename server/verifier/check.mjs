@@ -34,8 +34,10 @@ export async function runCheck({
   confirm,
   report = () => {},
 }) {
-  const pythonInfo = await resolvePython(python);
+  // 先确认目录是仓库根：这是最便宜、也最基本的前提。
+  // 若放在探测 Python 之后，"目录不对"会被"找不到解释器"掩盖，报错指错方向。
   const baseCommit = await resolveCommit(repoPath, baseRef);
+  const pythonInfo = await resolvePython(python);
 
   report({ type: "discovering", baseCommit });
 

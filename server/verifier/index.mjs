@@ -6,6 +6,7 @@ import { loadOracle, detectOracleTampering } from "./oracle.mjs";
 import {
   ISOLATION_PROFILE,
   applyPatch,
+  assertRepoRoot,
   computeDependencyDigest,
   computeTreeDigest,
   createWorkspace,
@@ -144,6 +145,9 @@ export async function verifyPatch({
     ? providedOracle
     : await loadOracle(oraclePath);
   const { oracle, digest: oracleDigest, protectedPaths } = resolvedOracle;
+  // 传了 commit 就跳过 resolveCommit，但目录校验仍要做：
+  // 子目录会让 clone 失败，而那个错误对用户毫无指导意义。
+  if (commit) await assertRepoRoot(repoPath);
   const baseCommit = commit ?? (await resolveCommit(repoPath, baseRef));
 
   let patchText;

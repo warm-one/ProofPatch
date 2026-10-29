@@ -176,7 +176,56 @@ export async function listChangedPaths(workspace, baseCommit) {
   return output ? output.split(/\r?\n/).filter(Boolean) : [];
 }
 
+/**
+ * 确认给定路径就是仓库根。
+ *
+ * git 的 rev-parse 会向上查找父仓库，所以"在子目录里运行"不会被自动发现，
+ * 直到 git clone <子目录> 才以一个内部错误暴露出来。
+ * 这里提前拦下，并直接告诉用户仓库根在哪。
+ */
+export async function assertRepoRoot(repoPath) {
+  let root;
+  try {
+    root = await runGit(["rev-parse", "--show-toplevel"], repoPath);
+  } catch {
+    throw new UserFacingError(
+      [
+        `这个目录不在任何 Git 仓库里：${path.resolve(repoPath)}`,
+        "",
+        "请切换到你的项目根目录，或用 --repo 指定仓库根路径。",
+      ].join("\n"),
+      400,
+      "NOT_A_REPOSITORY",
+    );
+  }
+
+  const resolvedRepo = path.resolve(repoPath);
+  const resolvedRoot = path.resolve(root);
+  const same =
+    process.platform === "win32"
+      ? resolvedRepo.toLowerCase() === resolvedRoot.toLowerCase()
+      : resolvedRepo === resolvedRoot;
+
+  if (!same) {
+    throw new UserFacingError(
+      [
+        "当前目录是仓库的子目录，不是仓库根。",
+        `  你所在的目录：${resolvedRepo}`,
+        `  仓库根目录：  ${resolvedRoot}`,
+        "",
+        `请改用：--repo "${resolvedRoot}"`,
+        "或先切换到仓库根目录再运行。",
+      ].join("\n"),
+      400,
+      "NOT_REPO_ROOT",
+    );
+  }
+
+  return resolvedRoot;
+}
+
 export async function resolveCommit(repoPath, ref) {
+  await assertRepoRoot(repoPath);
   const output = await runGit(["rev-parse", "--verify", `${ref}^{commit}`], repoPath);
   if (!/^[0-9a-f]{7,64}$/i.test(output)) {
     throw new UserFacingError(`无法把 ${ref} 解析为 commit。`);

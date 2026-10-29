@@ -60,7 +60,60 @@ function verify(patchName, overrides = {}) {
   });
 }
 
-// 没有 pytest 环境时跳过端到端用例，而不是给出一个假的通过。
+// 缺 pytest 时，跳过会让 11 项核心验证静默不执行、测试却仍然全绿——
+// 这正是本工具要防的"假绿"，不能出现在它自己的测试里。
+// 因此默认必须显式失败；只有主动设置 PROOFPATCH_ALLOW_NO_PYTHON=1 才允许跳过。
+const missingPython = !TEST_PYTHON;
+const allowSkipWithoutPython = process.env.PROOFPATCH_ALLOW_NO_PYTHON === "1";
+
+if (missingPython && !allowSkipWithoutPython) {
+  describe("端到端证明流程 · 环境守卫", () => {
+    it("缺少 Python + pytest 时必须显式失败，而不是静默跳过", () => {
+      throw new Error(
+        [
+          "端到端测试需要 Python + pytest，但当前环境没有找到可用的解释器。",
+          "",
+          "这不是可以静默跳过的情况：跳过会让 11 项核心验证不执行，",
+          "而 npm test 仍显示通过——正是这个工具要防的假绿。",
+          "",
+          "解决办法：",
+          "  1) 设置 PROOFPATCH_PYTHON 指向已安装 pytest 的解释器",
+          "  2) 或安装 pytest：python -m pip install pytest",
+          "  3) 确实只想跑单元测试时，显式设置 PROOFPATCH_ALLOW_NO_PYTHON=1",
+        ].join("\n"),
+      );
+    });
+  });
+}
+
+// 有意允许跳过时（显式设置了环境变量），才走 skipIf 分支。
+describe("仓库根校验", () => {
+  it("在仓库子目录运行时会指出仓库根，而不是抛 git 内部错误", async () => {
+    await expect(
+      verifyPatch({
+        repoPath: path.join(repoDir, "tests"),
+        patchPath: path.join(PATCHES, "honest.diff"),
+        oraclePath: ORACLE,
+      }),
+    ).rejects.toThrow(/子目录/);
+  });
+
+  it("不在任何 Git 仓库里时给出明确提示", async () => {
+    const outside = await mkdtemp(path.join(tmpdir(), "pp-outside-"));
+    try {
+      await expect(
+        verifyPatch({
+          repoPath: outside,
+          patchPath: path.join(PATCHES, "honest.diff"),
+          oraclePath: ORACLE,
+        }),
+      ).rejects.toThrow(/不在任何 Git 仓库/);
+    } finally {
+      await rm(outside, { recursive: true, force: true, maxRetries: 3 });
+    }
+  });
+});
+
 describe.skipIf(!TEST_PYTHON)("端到端证明流程", () => {
   it(
     "诚实补丁被证明，且回执自校验通过",

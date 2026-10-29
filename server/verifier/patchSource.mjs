@@ -35,7 +35,9 @@ export async function preparePatchFromWorktree({ repoPath, baseRef = "HEAD" }) {
   try {
     const result = await execFileAsync(
       "git",
-      ["-c", "core.autocrlf=false", "status", "--porcelain"],
+      // 不覆盖 core.autocrlf：让 status / diff / apply 使用同一套行尾规则。
+      // 强制 false 会让 autocrlf=true 的仓库把整文件误判为改动。
+      ["status", "--porcelain"],
       { cwd: repoPath, encoding: "utf8", windowsHide: true },
     );
     status = result.stdout;
@@ -86,7 +88,7 @@ export async function preparePatchFromWorktree({ repoPath, baseRef = "HEAD" }) {
       "git",
       // --no-renames：纯重命名在 diff 里没有 ---/+++ 行，会让路径检查看不见。
       // 展开成"删除+新增"后，受保护路径必然出现在补丁文本中。
-      ["-c", "core.autocrlf=false", "diff", "--no-renames", baseRef, "--binary", "--"],
+      ["diff", "--no-renames", baseRef, "--binary", "--"],
       { cwd: repoPath, encoding: "utf8", windowsHide: true, maxBuffer: 32 * 1024 * 1024 },
     );
     diff = result.stdout;
