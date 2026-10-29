@@ -133,6 +133,8 @@ export async function verifyPatch({
   timeoutMs = 120_000,
   // 严格模式：PROVEN 之前先检查证据覆盖，覆盖不足就降级为 inconclusive。
   strict = false,
+  // 每次 trial 结束时回调，让调用方可以输出进度（长任务不该全程静默）。
+  onProgress = () => {},
   // 调用方若已解析过基线（check 流程），直接传进来，避免解析两次导致基线漂移。
   commit,
 }) {
@@ -311,6 +313,14 @@ export async function verifyPatch({
             testId: target.testId,
             ...result,
           });
+          onProgress({
+            phase: "baseline",
+            repeat: index + 1,
+            total: repeats,
+            testId: target.testId,
+            outcome: result.outcome,
+            durationMs: result.durationMs,
+          });
         }
       }
 
@@ -335,6 +345,14 @@ export async function verifyPatch({
             repeat: index + 1,
             testId: target.testId,
             ...result,
+          });
+          onProgress({
+            phase: "candidate",
+            repeat: index + 1,
+            total: repeats,
+            testId: target.testId,
+            outcome: result.outcome,
+            durationMs: result.durationMs,
           });
         }
       }

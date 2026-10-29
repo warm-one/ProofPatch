@@ -28,6 +28,8 @@ proofpatch check --python /path/to/python.exe
 
 如果本机 `python` 已装 pytest，`--python` 可以省略。
 
+> 必须在**仓库根目录**运行。若在子目录里跑，工具会直接拒绝并告诉你真正的仓库根在哪。
+
 它会：
 
 1. 在你的项目里跑一遍测试，找出**已经在失败**的测试

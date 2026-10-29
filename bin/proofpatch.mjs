@@ -281,6 +281,18 @@ async function commandCheck(flags) {
     timeoutMs: Math.round(timeoutSeconds * 1000),
     strict: Boolean(flags.strict),
     assumeYes: Boolean(flags.yes),
+    onProgress: (event) => {
+      const label = event.phase === "baseline" ? "基线" : "候选";
+      const outcome =
+        {
+          pass: "通过",
+          fail: "失败",
+          error: "错误",
+          missing: "未收集到",
+          timeout: "超时",
+        }[event.outcome] ?? event.outcome;
+      say(dim(`    ${label} ${event.repeat}/${event.total}  ${outcome}  ${event.durationMs}ms`));
+    },
     confirm: async () => {
       say("");
       return askConfirm("  把这个失败作为验收契约？[Y/n] ");

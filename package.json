@@ -1,7 +1,7 @@
 {
   "name": "proofpatch",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "独立执行证据层：证明一个补丁真的修复了失败，而不只是看起来像修好了",
   "type": "module",
   "bin": {
