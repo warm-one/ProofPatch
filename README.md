@@ -187,11 +187,12 @@ server/verifier/             判定内核
 src/                         官网与回执查看器（纯静态，无后端）
 fixtures/python-bugfix/      含一个真实缺陷的夹具项目
 scripts/acceptance-matrix.mjs 对抗补丁验收矩阵
-docs/audit-2026-10-28.md     一次完整的正确性审查记录
+docs/audit-2026-10-28.md     判定正确性审查记录
+docs/review-2026-10-29.md    交付前全局检查（含 3 个 P1 及修复）
 ```
 
 Web 端只有一个执行无关的页面：`/receipt`。拖入一份 `receipt.json`，它会把四步验证、
 契约、执行记录、未证明边界摊开，并**在你的浏览器里重算内容哈希**——不经过任何服务器。
 
 
-测试：`npm test`（59 项）。验收矩阵：`npm run acceptance -- --python <python.exe>`。
+测试：`npm test`（52 项）。验收矩阵：`npm run acceptance -- --python <python.exe>`。
